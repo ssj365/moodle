@@ -163,6 +163,13 @@ class recording_row_actionbar implements renderable, templatable {
                     } else {
                         $iconortext = get_string($buttonpayload['action']);
                         $linkattributes['title'] = get_string($buttonpayload['action']);
+                        $linkattributes['data-action'] = $buttonpayload['action'];
+                        $linkattributes['data-require-confirmation'] = !empty($buttonpayload['requireconfirmation']);
+
+                        if (isset($buttonpayload['disabled'])) {
+                            $iconattributes['class'] .= ' fa-' . $buttonpayload['disabled'];
+                            $linkattributes['class'] .= ' hidden';
+                        }
                     }
                     $actionlink = new \action_link(new \moodle_url('#'), $iconortext, null, $linkattributes);
                     $context->tools [] = $actionlink->export_for_template($output);
