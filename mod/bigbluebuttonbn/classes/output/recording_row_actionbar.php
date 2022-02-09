@@ -161,8 +161,8 @@ class recording_row_actionbar implements renderable, templatable {
                         );
                         $iconortext = $output->render($icon);
                     } else {
-                        $iconortext = get_string($buttonpayload['action']);
-                        $linkattributes['title'] = get_string($buttonpayload['action']);
+                        $iconortext = get_string('view_recording_list_actionbar_' .$buttonpayload['action'], 'bigbluebuttonbn');
+                        $linkattributes['title'] = get_string('view_recording_list_actionbar_' .$buttonpayload['action'], 'bigbluebuttonbn');
                     }
                     $actionlink = new \action_link(new \moodle_url('#'), $iconortext, null, $linkattributes);
                     $context->tools [] = $actionlink->export_for_template($output);
