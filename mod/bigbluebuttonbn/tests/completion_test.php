@@ -42,7 +42,7 @@ class completion_test extends \advanced_testcase {
     }
 
     /**
-     * Completion with no rules
+     * Completion with no rules: the completion is completed as soons as we view the course.
      */
     public function test_get_completion_state_no_rules() {
         $this->resetAfterTest();
@@ -54,7 +54,7 @@ class completion_test extends \advanced_testcase {
         $completion = new custom_completion($bbactivitycm, $user->id);
         $result = $completion->get_overall_completion_state();
         // No custom rules so complete by default.
-        $this->assertEquals(COMPLETION_INCOMPLETE, $result);
+        $this->assertEquals(COMPLETION_COMPLETE, $result);
     }
 
     /**
@@ -194,6 +194,12 @@ class completion_test extends \advanced_testcase {
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
 
+        // Check completion before viewing.
+        $completion = new completion_info($this->get_course());
+        $completiondata = $completion->get_data($bbactivitycm);
+        $this->assertEquals(0, $completiondata->viewed);
+        $this->assertEquals(COMPLETION_NOT_VIEWED, $completiondata->completionstate);
+
         bigbluebuttonbn_view($bbactivity, $this->get_course(), $bbactivitycm, context_module::instance($bbactivitycm->id));
 
         $events = $sink->get_events();
@@ -213,6 +219,6 @@ class completion_test extends \advanced_testcase {
         $completion = new completion_info($this->get_course());
         $completiondata = $completion->get_data($bbactivitycm);
         $this->assertEquals(1, $completiondata->viewed);
-        $this->assertEquals(COMPLETION_INCOMPLETE, $completiondata->completionstate);
+        $this->assertEquals(COMPLETION_COMPLETE, $completiondata->completionstate);
     }
 }

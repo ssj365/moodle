@@ -105,7 +105,7 @@ class lib_test extends \advanced_testcase {
      *
      * @covers ::bigbluebuttonbn_user_outline
      */
-    public function test_bigbluebuttonbn_user_outline() {
+    public function test_bigbluebuttonbn_user_outline_simple() {
         $this->resetAfterTest();
 
         $generator = $this->getDataGenerator();
@@ -116,14 +116,32 @@ class lib_test extends \advanced_testcase {
 
         $result = bigbluebuttonbn_user_outline($this->get_course(), $user, $bbactivitycm, $bbactivity);
         $this->assertEquals((object) [], $result);
+    }
 
+    /**
+     * Check user outline page
+     *
+     * @covers ::bigbluebuttonbn_user_outline
+     */
+    public function test_bigbluebuttonbn_user_outline_with_custom_completion() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $user = $generator->create_user();
+        $this->setUser($user);
+
+        list($bbactivitycontext, $bbactivitycm, $bbactivity) = $this->create_instance();
+        $bbactivitycm->override_customdata('customcompletionrules', [
+            'completionattendance' => '1',
+        ]);
         // Now create a couple of logs.
         $instance = instance::get_from_instanceid($bbactivity->id);
         logger::log_meeting_joined_event($instance, 0);
         logger::log_recording_played_event($instance, 1);
 
         $result = bigbluebuttonbn_user_outline($this->get_course(), $user, $bbactivitycm, $bbactivity);
-        $this->assertStringContainsString(get_string('completionview_event_desc', 'mod_bigbluebuttonbn', 2), $result->info);
+        $this->assertStringContainsString(get_string('completionattendance_event_desc', 'mod_bigbluebuttonbn', 1),
+            $result->info);
     }
 
     /**
@@ -131,25 +149,27 @@ class lib_test extends \advanced_testcase {
      *
      * @covers ::bigbluebuttonbn_user_complete
      */
-    public function test_bigbluebuttonbn_user_complete() {
+    public function test_bigbluebuttonbn_user_complete_with_custom_rules() {
         $this->initialise_mock_server();
         $this->resetAfterTest();
 
         $generator = $this->getDataGenerator();
         $user = $generator->create_and_enrol($this->get_course());
         list($bbactivitycontext, $bbactivitycm, $bbactivity) = $this->create_instance();
-        $this->setUser($user);
-
+        $bbactivitycm->override_customdata('customcompletionrules', [
+            'completionattendance' => '1',
+        ]);
         // Now create a couple of logs.
         $instance = instance::get_from_instanceid($bbactivity->id);
         $recordings = $this->create_recordings_for_instance($instance, [['name' => "Pre-Recording 1"]]);
+        $this->setUser($user);
         logger::log_meeting_joined_event($instance, 0);
         logger::log_recording_played_event($instance, $recordings[0]->id);
         ob_start();
         bigbluebuttonbn_user_complete($this->get_course(), $user, $bbactivitycm, $bbactivity);
         $output = ob_get_contents();
         ob_end_clean();
-        $this->assertStringContainsString(get_string('completionview_event_desc', 'mod_bigbluebuttonbn', 2), $output);
+        $this->assertEquals(get_string('completionattendance_event_desc', 'mod_bigbluebuttonbn', 1), $output);
     }
 
     /**
@@ -403,6 +423,7 @@ class lib_test extends \advanced_testcase {
 
         list($bbactivitycontext, $bbactivitycm, $bbactivity) = $this->create_instance();
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id);
+        $this->setUser($user);
 
         logger::log_meeting_joined_event(instance::get_from_instanceid($bbactivity->id), 0);
         $data->courseid = $this->get_course()->id;
@@ -435,6 +456,7 @@ class lib_test extends \advanced_testcase {
 
         list($bbactivitycontext, $bbactivitycm, $bbactivity) = $this->create_instance();
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id);
+        $this->setUser($user);
         logger::log_meeting_joined_event(instance::get_from_instanceid($bbactivity->id), 0);
 
         // Now create another activity in a course and add a couple of logs.
@@ -468,6 +490,7 @@ class lib_test extends \advanced_testcase {
 
         list($bbactivitycontext, $bbactivitycm, $bbactivity) = $this->create_instance();
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id);
+        $this->setUser($user);
         logger::log_meeting_joined_event(instance::get_from_instanceid($bbactivity->id), 0);
 
         $data->courseid = $this->get_course()->id;

@@ -212,18 +212,20 @@ function bigbluebuttonbn_user_outline(stdClass $course, stdClass $user, cm_info 
     $completed = $customcompletion->get_overall_completion_state();
     $result = new stdClass();
     if ($completed) {
-        $results = [];
+        $info = [];
         $lastlog = 0;
         foreach ($customcompletion->get_available_custom_rules() as $rule) {
-            $results[] = $customcompletion->get_printable_state($rule);
+            $info[] = $customcompletion->get_printable_state($rule);
             $lastlogrule = $customcompletion->get_last_log_timestamp($rule);
             if ($lastlogrule > $lastlog) {
                 $lastlog = $lastlogrule;
             }
         }
-        $result = new stdClass();
-        $result->info = join(', ', $results);
-        $result->time = $lastlog;
+        if (!empty($info)) {
+            $result = new stdClass();
+            $result->info = join(', ', $info);
+            $result->time = $lastlog;
+        }
     }
     return $result;
 }
@@ -329,7 +331,7 @@ function bigbluebuttonbn_reset_userdata(stdClass $data) {
     }
 
     if (!empty($data->reset_bigbluebuttonbn_logs)) {
-        // Remove all the tags linked to the room/activities in this course.
+        // Remove all the logs linked to the room/activities in this course.
         reset::reset_logs($data->courseid);
         unset($items['logs']);
         $status[] = reset::reset_getstatus('logs');
