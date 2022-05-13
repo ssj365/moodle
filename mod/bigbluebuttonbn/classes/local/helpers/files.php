@@ -132,11 +132,9 @@ class files {
      *
      * @param context $context
      * @param string $presentation matching presentation file name
-     * @param int $id bigbluebutton instance id
-     * @param bool $withnonce add nonce to the url
      * @return array|null the representation of the presentation as an associative array
      */
-    public static function get_presentation(context $context, string $presentation, $id = null, $withnonce = false): ?array {
+    public static function get_presentation(context $context, string $presentation): ?array {
         global $CFG;
         $fs = get_file_storage();
         $files = [];
@@ -166,19 +164,9 @@ class files {
         } else {
             if (empty($activitypresentation) || !\mod_bigbluebuttonbn\local\config::get('preuploadpresentation_editable')) {
                 $files = $defaultpresentation;
-                $id = null;
             } else {
                 $files = $activitypresentation;
             }
-        }
-        $pnoncevalue = 0;
-        if ($withnonce) {
-            $nonceid = 0;
-            if (!is_null($id)) {
-                $instance = instance::get_from_instanceid($id);
-                $nonceid = $instance->get_instance_id();
-            }
-            $pnoncevalue = self::generate_nonce($nonceid);
         }
 
         $file = null;
@@ -194,20 +182,11 @@ class files {
             return null; // File was not found.
         }
 
-        // Note: $pnoncevalue is an int.
-        $url = moodle_url::make_pluginfile_url(
-            $file->get_contextid(),
-            $file->get_component(),
-            $file->get_filearea(),
-            $withnonce ? $pnoncevalue : null, // Hack: item id as a nonce.
-            $file->get_filepath(),
-            $file->get_filename()
-        );
         return [
             'icondesc' => get_mimetype_description($file),
             'iconname' => file_file_icon($file, 24),
             'name' => $file->get_filename(),
-            'url' => $url->out(false),
+            'content' => $file->get_content(),
         ];
     }
 

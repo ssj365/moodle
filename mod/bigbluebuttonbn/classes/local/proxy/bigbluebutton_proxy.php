@@ -406,14 +406,14 @@ class bigbluebutton_proxy extends proxy_base {
         array $data,
         array $metadata,
         ?string $presentationname = null,
-        ?string $presentationurl = null
+        ?string $presentationfile = null
     ): array {
         $createmeetingurl = self::action_url('create', $data, $metadata);
-
+        $presentationfile = base64_encode($presentationfile); // Base encode the presentation content.
         $curl = new curl();
-        if (!is_null($presentationname) && !is_null($presentationurl)) {
-            $payload = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='" .
-                $presentationurl . "' /></module></modules>";
+        if (!is_null($presentationname) && !is_null($presentationfile)) {
+            $payload = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document name='" .
+            $presentationname . "'>". $presentationfile ."</document></module></modules>";
 
             $xml = $curl->post($createmeetingurl, $payload);
         } else {

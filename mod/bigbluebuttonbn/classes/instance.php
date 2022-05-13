@@ -821,45 +821,35 @@ EOF;
     /**
      * Get the presentation data for internal use.
      *
-     * The URL returned for the presentation will be accessible through moodle with checks about user being logged in.
+     * The data returned for the presentation will be accessible through moodle with checks about user being logged in.
      *
      * @return array|null
      */
     public function get_presentation(): ?array {
-        return $this->do_get_presentation_with_nonce(false);
+        return $this->do_get_presentation();
     }
 
     /**
-     * Get the presentation data for external API url.
+     * Get the presentation data for external API.
      *
-     * The URL returned for the presentation will be accessible publicly but once and with a specific URL.
+     * The data returned for the presentation will be accessible publicly.
      *
      * @return array|null
      */
     public function get_presentation_for_bigbluebutton_upload(): ?array {
-        return $this->do_get_presentation_with_nonce(true);
+        return $this->do_get_presentation();
     }
 
     /**
-     * Generate Presentation URL.
+     * Generate Presentation data.
      *
-     * @param bool $withnonce The generated url will have a nonce included
      * @return array|null
      */
-    protected function do_get_presentation_with_nonce(bool $withnonce): ?array {
-        if ($this->has_ended()) {
+    protected function do_get_presentation(): ?array {
+        if ($this->has_ended() || $this->is_currently_open()) {
             return files::get_presentation(
                 $this->get_context(),
                 $this->get_instance_var('presentation'),
-                null,
-                $withnonce
-            );
-        } else if ($this->is_currently_open()) {
-            return files::get_presentation(
-                $this->get_context(),
-                $this->get_instance_var('presentation'),
-                $this->get_instance_id(),
-                $withnonce
             );
         } else {
             return [];

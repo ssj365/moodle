@@ -163,10 +163,10 @@ class meeting {
     public function create_meeting() {
         $data = $this->create_meeting_data();
         $metadata = $this->create_meeting_metadata();
-        $presentation = $this->instance->get_presentation_for_bigbluebutton_upload(); // The URL must contain nonce.
+        $presentation = $this->instance->get_presentation_for_bigbluebutton_upload();
         $presentationname = $presentation['name'] ?? null;
-        $presentationurl = $presentation['url'] ?? null;
-        $response = bigbluebutton_proxy::create_meeting($data, $metadata, $presentationname, $presentationurl);
+        $presentationfile = $presentation['content'] ?? null;
+        $response = bigbluebutton_proxy::create_meeting($data, $metadata, $presentationname, $presentationfile);
         // New recording management: Insert a recordingID that corresponds to the meeting created.
         if ($this->instance->is_recorded()) {
             $recording = new recording(0, (object) [

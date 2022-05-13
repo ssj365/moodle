@@ -124,7 +124,7 @@ class meeting_info extends external_api {
                 'ismoderator' => new external_value(PARAM_BOOL, 'Is moderator'),
                 'presentations' => new \external_multiple_structure(
                     new external_single_structure([
-                        'url' => new external_value(PARAM_URL, 'presentation URL'),
+                        //'content' => new external_value(PARAM_RAW, 'presentation content'), <- uncommenting this causes an error
                         'iconname' => new external_value(PARAM_RAW, 'icon name'),
                         'icondesc' => new external_value(PARAM_TEXT, 'icon text'),
                         'name' => new external_value(PARAM_TEXT, 'presentation name'),
