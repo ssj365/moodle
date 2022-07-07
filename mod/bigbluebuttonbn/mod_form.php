@@ -154,7 +154,7 @@ class mod_bigbluebuttonbn_mod_form extends moodleform_mod {
             try {
                 $draftitemid = file_get_submitted_draft_itemid('presentation');
                 file_prepare_draft_area($draftitemid, $this->context->id, 'mod_bigbluebuttonbn', 'presentation', 0,
-                    ['subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1, 'mainfile' => true]
+                    ['subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 5, 'mainfile' => true]
                 );
                 $defaultvalues['presentation'] = $draftitemid;
             } catch (Exception $e) {
@@ -555,7 +555,7 @@ class mod_bigbluebuttonbn_mod_form extends moodleform_mod {
             $filemanageroptions['accepted_types'] = '*';
             $filemanageroptions['maxbytes'] = 0;
             $filemanageroptions['subdirs'] = 0;
-            $filemanageroptions['maxfiles'] = 1;
+            $filemanageroptions['maxfiles'] = 5;
             $filemanageroptions['mainfile'] = true;
             $mform->addElement('filemanager', 'presentation', get_string('selectfiles'),
                 null, $filemanageroptions);

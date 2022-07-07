@@ -128,13 +128,15 @@ class meeting_info extends external_api {
                 'participantplural' => new external_value(PARAM_BOOL, 'Several participants ?', VALUE_OPTIONAL),
                 'canjoin' => new external_value(PARAM_BOOL, 'Can join'),
                 'ismoderator' => new external_value(PARAM_BOOL, 'Is moderator'),
-                'presentations' => new external_multiple_structure(
-                    new external_single_structure([
+                'presentations' => new \external_multiple_structure(
+                    new external_single_structure(
+                        array(
                         'url' => new external_value(PARAM_URL, 'presentation URL'),
                         'iconname' => new external_value(PARAM_RAW, 'icon name'),
                         'icondesc' => new external_value(PARAM_TEXT, 'icon text'),
                         'name' => new external_value(PARAM_TEXT, 'presentation name'),
-                    ])
+                        )
+                    )
                 ),
                 'joinurl' => new external_value(PARAM_URL, 'Join URL'),
                 'guestaccessenabled' => new external_value(PARAM_BOOL, 'Guest access enabled', VALUE_OPTIONAL),

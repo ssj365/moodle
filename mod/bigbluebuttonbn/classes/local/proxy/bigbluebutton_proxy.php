@@ -423,23 +423,24 @@ class bigbluebutton_proxy extends proxy_base {
      *
      * @param array $data
      * @param array $metadata
-     * @param string|null $presentationname
-     * @param string|null $presentationurl
+     * @param array $presentations
      * @return array
      * @throws bigbluebutton_exception
      */
     public static function create_meeting(
         array $data,
         array $metadata,
-        ?string $presentationname = null,
-        ?string $presentationurl = null
+        array $presentations
     ): array {
         $createmeetingurl = self::action_url('create', $data, $metadata);
-
         $curl = new curl();
-        if (!is_null($presentationname) && !is_null($presentationurl)) {
-            $payload = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='" .
-                $presentationurl . "' /></module></modules>";
+        // If presentation(s) exist, send as part of payload.
+        if (!empty($presentations)) {
+            $payload = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'>";
+            foreach ($presentations as $presentation) {
+                $payload .= "<document url='" . $presentation['url'] . "' />";
+            }
+            $payload .= "</module></modules>";
 
             $xml = $curl->post($createmeetingurl, $payload);
         } else {

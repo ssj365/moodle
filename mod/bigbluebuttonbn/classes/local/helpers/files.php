@@ -171,44 +171,41 @@ class files {
                 $files = $activitypresentation;
             }
         }
-        $pnoncevalue = 0;
-        if ($withnonce) {
-            $nonceid = 0;
-            if (!is_null($id)) {
-                $instance = instance::get_from_instanceid($id);
-                $nonceid = $instance->get_instance_id();
+            // Note: $pnoncevalue is an int.
+            $pnoncevalue = 0;
+            if ($withnonce) {
+                $nonceid = 0;
+                if (!is_null($id)) {
+                    $instance = instance::get_from_instanceid($id);
+                    $nonceid = $instance->get_instance_id();
+                }
+                $pnoncevalue = self::generate_nonce($nonceid);
             }
-            $pnoncevalue = self::generate_nonce($nonceid);
-        }
-
         $file = null;
+        $presentations = [];
         foreach ($files as $f) {
-            if (basename($f->get_filename()) == basename($presentation)) {
-                $file = $f;
+            $file = $f;
+            if (empty($file)) {
+                return null; // File was not found.
             }
-        }
-        if (!$file && !empty($files)) {
-            $file = reset($files);
-        }
-        if (empty($file)) {
-            return null; // File was not found.
-        }
 
-        // Note: $pnoncevalue is an int.
-        $url = moodle_url::make_pluginfile_url(
-            $file->get_contextid(),
-            $file->get_component(),
-            $file->get_filearea(),
-            $withnonce ? $pnoncevalue : null, // Hack: item id as a nonce.
-            $file->get_filepath(),
-            $file->get_filename()
-        );
-        return [
-            'icondesc' => get_mimetype_description($file),
-            'iconname' => file_file_icon($file, 24),
-            'name' => $file->get_filename(),
-            'url' => $url->out(false),
-        ];
+            $url = moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $withnonce ? $pnoncevalue : null, // Hack: item id as a nonce.
+                $file->get_filepath(),
+                $file->get_filename()
+            );
+
+            $presentations[] = [
+                'url' => $url->out(false),
+                'icondesc' => get_mimetype_description($file),
+                'iconname' => file_file_icon($file, 24),
+                'name' => $file->get_filename(),
+            ];
+        }
+        return $presentations;
     }
 
     /**
@@ -291,7 +288,7 @@ class files {
         // The item id was adapted for granting public access to the presentation once in order to allow BigBlueButton to gather
         // the file once.
         $pnoncevalue = ((int) microtime()) + mt_rand();
-        $cache->set($pnoncekey, (object) ['nonce' => $pnoncevalue, 'counter' => 2]);
+        $cache->set($pnoncekey, (object) ['nonce' => $pnoncevalue, 'counter' => 20]);
         return $pnoncevalue;
     }
 
