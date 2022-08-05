@@ -314,6 +314,57 @@ class get_recordings_test extends \externallib_advanced_testcase {
         }
     }
 
+
+    /**
+     * Check we can see only imported recordings from a course in a room only instance when "Show only imported links" enabled.
+     * @covers \mod_bigbluebuttonbn\external\get_recordings::execute
+     */
+    public function test_get_imported_recordings_room_only() {
+        $this->resetAfterTest();
+        set_config('bigbluebuttonbn_importrecordings_enabled', 1);
+        $dataset = [
+            'type' => instance::TYPE_ALL,
+            'groups' => null,
+            'users' => [['username' => 't1', 'role' => 'editingteacher'], ['username' => 's1', 'role' => 'student']],
+            'recordingsdata' => [
+                [['name' => 'Recording1']]
+            ],
+        ];
+        $activityid = $this->create_from_dataset($dataset);
+        $instance = instance::get_from_instanceid($activityid);
+
+        // Now create a recording only activity.
+        $plugingenerator = $this->getDataGenerator()->get_plugin_generator('mod_bigbluebuttonbn');
+        // Now create a new activity and import the first record.
+        $newactivity = $plugingenerator->create_instance([
+            'course' => $instance->get_course_id(),
+            'type' => instance::TYPE_RECORDING_ONLY,
+            'name' => 'Example 2',
+            'recordingsdata' => [
+                [['name' => 'Recording2']],
+                [['name' => 'Recording3']]
+            ],
+        ]);
+        $plugingenerator->create_meeting([
+            'instanceid' => $newactivity->id,
+        ]); // We need to have a meeting created in order to import recordings.
+        $newinstance = instance::get_from_instanceid($newactivity->id);
+        $recordings = $instance->get_recordings();
+        foreach ($recordings as $recording) {
+            if ($recording->get('name') == 'Recording1') {
+                $recording->create_imported_recording($newinstance);
+            }
+        }
+        $getrecordings = $this->get_recordings($newinstance->get_instance_id());
+        // Check users see or do not see recording dependings on their groups.
+        $data = json_decode($getrecordings['tabledata']['data']);
+        $this->assertCount(3, $data);
+
+
+    }
+
+
+
     /**
      * Check if recording are visible/invisible depending on the group.
      *
