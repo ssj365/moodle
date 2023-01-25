@@ -499,7 +499,19 @@ function xmldb_bigbluebuttonbn_upgrade($oldversion = 0) {
         // Bigbluebuttonbn savepoint reached.
         upgrade_mod_savepoint(true, 2023011800, 'bigbluebuttonbn');
     }
+    if ($oldversion < 2023012500) {
+        // Define field recordings_deleted to be dropped from bigbluebuttonbn.
+        $table = new xmldb_table('bigbluebuttonbn');
+        $field = new xmldb_field('recordings_deleted');
 
+        // Conditionally launch drop field recordings_deleted.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Bigbluebuttonbn savepoint reached.
+        upgrade_mod_savepoint(true, 2023012500, 'bigbluebuttonbn');
+    }
     return true;
 }
 

@@ -1142,9 +1142,7 @@ EOF;
         return recording::get_recordings_for_course(
             $this->get_course_id(),
             $excludedid,
-            $this->is_feature_enabled('importrecordings'),
-            false,
-            $viewdeleted
+            $this->is_feature_enabled('importrecordings')
         );
     }
 
