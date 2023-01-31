@@ -74,6 +74,15 @@ class view_page implements renderable, templatable {
             ))->export_for_template($output);
         }
 
+        if ($this->instance->is_moderator() && $this->instance->is_breakout_enabled() &&
+            $this->instance->uses_groups()) {
+            $templatedata->breakoutwarning = (new notification(
+                get_string('view_warning_breakout_limit', 'mod_bigbluebuttonbn'),
+                notification::NOTIFY_WARNING,
+                false
+            ))->export_for_template($output);
+        }
+
         $viewwarningmessage = config::get('general_warning_message');
         if ($this->show_view_warning() && !empty($viewwarningmessage)) {
             $templatedata->sitenotification = (object) [

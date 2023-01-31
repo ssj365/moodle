@@ -430,6 +430,22 @@ class meeting {
                 }
             }
         }
+        // First check that enrolled users in the course do not exceed breakout limit.
+        $enrolledusers = count_enrolled_users(context_course::instance($this->instance->get_course_id()),
+        '', 0);
+        if ($this->instance->is_breakout_enabled() &&
+            !$this->instance->has_breakout_limit_been_reached($enrolledusers)) {
+            // Populate breakout room with group roster if groups enabled.
+            $allgroups = groups_get_all_groups($this->instance->get_course_id(), 0 , 0, 'g.*', true);
+            if ($this->instance->uses_groups() && !empty($allgroups)) {
+                $groups = [];
+                foreach ($allgroups as $group) {
+                    $group->roster = array_keys($group->members);
+                    $groups[] = $group;
+                }
+                $data['groups'] = json_encode($groups);
+            }
+        }
         return $data;
     }
 

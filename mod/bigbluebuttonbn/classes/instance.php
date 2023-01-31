@@ -1149,6 +1149,44 @@ EOF;
     }
 
     /**
+     * Get the configured breakout limit.
+     *
+     * @return int
+     */
+    public function get_breakout_limit(): int {
+        return (int) $this->get_instance_var('breakoutlimit');
+    }
+
+    /**
+     * Check whether the breakout limit has been reached.
+     *
+     * @param int $currentusercount The user count to check
+     * @return bool
+     */
+    public function has_breakout_limit_been_reached(int $currentusercount): bool {
+        $breakoutlimit = $this->get_breakout_limit();
+        if (empty($breakoutlimit)) {
+            return false;
+        }
+
+        return $currentusercount >= $breakoutlimit;
+    }
+
+    /**
+     * Check if prepopulate breakout enabled in this instance.
+     *
+     * @return bool
+     */
+    public function is_breakout_enabled(): bool {
+        $limit = (int) $this->get_instance_var('breakoutlimit');
+        if (empty($limit)) {
+            return false;
+        }
+        return !$this->is_type_recordings_only() &&
+            $this->get_instance_var('prepopulatebreakout');
+    }
+
+    /**
      * Check if this is a valid group for this user/instance,
      *
      *

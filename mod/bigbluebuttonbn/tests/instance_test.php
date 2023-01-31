@@ -602,4 +602,59 @@ class instance_test extends advanced_testcase {
         $this->assertNotEmpty($instance->get_guest_access_password());
     }
 
+    /**
+     * Ensure that the has_breakout_limit_been_reached function works as expected.
+     *
+     * @dataProvider has_breakout_limit_been_reached_provider
+     * @param bool $limitreached
+     * @param bool $expected
+     * @covers ::has_breakout_limit_been_reached
+     */
+    public function has_breakout_limit_been_reached(bool $limitreached, bool $expected): void {
+        $breakoutlimit = rand(1, 100); // Assign a value for breakout limit.
+        $stub = $this->getMockBuilder(instance::class)
+            ->setMethods([
+                'get_breakout_limit',
+            ])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $stub->method('get_breakout_limit')->willReturn($breakoutlimit);
+        if ($limitreached) {
+            $usercount = $breakoutlimit++;
+            $this->assertEquals($expected, $stub->has_breakout_limit_been_reached($usercount));
+        } else {
+            $usercount = $breakoutlimit--;
+            $this->assertEquals($expected, $stub->has_breakout_limit_been_reached($usercount));
+        }
+    }
+
+    /**
+     * Data provider for the has_breakout_limit_been_reached function.
+     *
+     * @return array
+     */
+    public function has_breakout_limit_been_reached_provider(): array {
+        return [
+            'Limit has been exceeded' => [true, true],
+            'Limit has not been exceeded' => [false, false],
+        ];
+    }
+
+    /**
+     * Test breakout enabled flag
+     *
+     * @covers ::is_breakout_enabled
+     */
+    public function test_is_breakout_enabled() {
+        global $CFG;
+        $this->resetAfterTest();
+        ['record' => $record ] = $this->get_test_instance(['breakoutlimit' => 100]);
+        $CFG->bigbluebuttonbn['prepopulatebreakout_enabled'] = 1;
+        $instance = instance::get_from_instanceid($record->id);
+        $this->assertTrue($instance->is_breakout_enabled());
+        $CFG->bigbluebuttonbn['prepopulatebreakout_enabled'] = 0;
+        $this->assertFalse($instance->is_breakout_enabled());
+    }
+
 }

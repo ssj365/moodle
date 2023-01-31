@@ -397,6 +397,15 @@ class mod_bigbluebuttonbn_mod_form extends moodleform_mod {
         $this->bigbluebuttonbn_mform_add_element($mform, $field['type'], $field['name'], $field['data_type'],
             $field['description_key'], $cfg['muteonstart_default']);
 
+        $mform->addElement('advcheckbox', 'prepopulatebreakout',
+            get_string('mod_form_field_prepopulatebreakout', 'bigbluebuttonbn'));
+        $mform->addElement('text', 'breakoutlimit', get_string('mod_form_field_breakoutlimit', 'bigbluebuttonbn'),
+            'maxlength="3" size="3"');
+        $mform->hideIf('breakoutlimit', 'prepopulatebreakout');
+        $mform->setType('breakoutlimit', PARAM_TEXT);
+        $mform->addRule('breakoutlimit', get_string('mod_form_field_breakout_format_error', 'bigbluebuttonbn'), 'regex', '/^([1-9]|[1-9][0-9]|1[0-9][0-9]|200)$/', 'client');
+        $mform->addHelpButton('breakoutlimit', 'mod_form_field_breakoutlimit', 'bigbluebuttonbn');
+
     }
 
     /**

@@ -412,6 +412,10 @@ $string['mod_form_field_disableprivatechat'] = 'Disable private chat';
 $string['mod_form_field_disablepublicchat'] = 'Disable public chat';
 $string['mod_form_field_disablenote'] = 'Disable shared notes';
 $string['mod_form_field_hideuserlist'] = 'Hide user list';
+$string['mod_form_field_prepopulatebreakout'] = 'Prepopulate breakout rooms';
+$string['mod_form_field_breakoutlimit'] = 'Breakout limit';
+$string['mod_form_field_breakoutlimit_help'] = 'The maximum number of users in a course permitted whilst prepopulate breakout feature is enabled. If this number is exceeded, the prepopulation will not be enforced.';
+$string['mod_form_field_breakout_format_error'] = 'Format error. You should input a number between 1 and 200.';
 $string['mod_form_locksettings'] = 'Lock settings';
 $string['report_join_info']  = '{$a} meeting(s)';
 $string['report_play_recording_info']  = '{$a} recording(s) played';
@@ -626,6 +630,7 @@ $string['view_warning_default_server'] = 'This site is using a <a href="https://
 <li>Recordings expire after seven (7) days and are not downloadable</li>
 <li>Student webcams are only visible to the moderator.</li>
 </ol>';
+$string['view_warning_breakout_limit'] = 'Prepopulation of breakout rooms is enabled. If the limit for this setting is exceeded, breakout rooms will not prepopulate using group roster.';
 
 $string['view_room'] = 'View room';
 $string['index_error_noinstances'] = 'There are no instances of BigBlueButton rooms';
