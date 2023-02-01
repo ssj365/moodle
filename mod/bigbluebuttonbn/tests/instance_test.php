@@ -643,18 +643,33 @@ class instance_test extends advanced_testcase {
 
     /**
      * Test breakout enabled flag
-     *
+     * 
+     * @dataProvider test_is_breakout_enabled_provider
+     * @param bool $breakoutlimit
+     * @param bool $prepopulate
+     * @param bool $expected
      * @covers ::is_breakout_enabled
      */
-    public function test_is_breakout_enabled() {
+    public function test_is_breakout_enabled($breakoutlimit, bool $prepopulate, $expected): void {
         global $CFG;
         $this->resetAfterTest();
-        ['record' => $record ] = $this->get_test_instance(['breakoutlimit' => 100]);
-        $CFG->bigbluebuttonbn['prepopulatebreakout_enabled'] = 1;
+        ['record' => $record ] = $this->get_test_instance(['breakoutlimit' => $breakoutlimit, 'prepopulatebreakout' => $prepopulate]);
         $instance = instance::get_from_instanceid($record->id);
-        $this->assertTrue($instance->is_breakout_enabled());
-        $CFG->bigbluebuttonbn['prepopulatebreakout_enabled'] = 0;
-        $this->assertFalse($instance->is_breakout_enabled());
+        $this->assertEquals($expected, $instance->is_breakout_enabled());
+    }
+
+    /**
+     * Data provider for the test_is_breakout_enabled function.
+     *
+     * @return array
+     */
+    public function test_is_breakout_enabled_provider(): array {
+        return [
+            'Limit exists, breakout option enabled' => [100, true, true],
+            'Limit exists, breakout option not enabled' => [100, false, false],
+            'Limit does not exist, breakout option enabled' => ['', true, false],
+            'Limit does not exist, breakout option not enabled' => ['', false, false],
+        ];
     }
 
 }

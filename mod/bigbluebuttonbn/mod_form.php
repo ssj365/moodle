@@ -403,6 +403,7 @@ class mod_bigbluebuttonbn_mod_form extends moodleform_mod {
             'maxlength="3" size="3"');
         $mform->hideIf('breakoutlimit', 'prepopulatebreakout');
         $mform->setType('breakoutlimit', PARAM_TEXT);
+        $mform->setDefault('breakoutlimit', 100);
         $mform->addRule('breakoutlimit', get_string('mod_form_field_breakout_format_error', 'bigbluebuttonbn'), 'regex', '/^([1-9]|[1-9][0-9]|1[0-9][0-9]|200)$/', 'client');
         $mform->addHelpButton('breakoutlimit', 'mod_form_field_breakoutlimit', 'bigbluebuttonbn');
 
@@ -596,7 +597,7 @@ class mod_bigbluebuttonbn_mod_form extends moodleform_mod {
         $action = new single_button(new moodle_url(qualified_me()),
             get_string('mod_form_field_participant_list_action_add', 'bigbluebuttonbn'),
             'post',
-            single_button::BUTTON_SECONDARY,
+            false,
             ['name' => 'bigbluebuttonbn_participant_selection_add']
         );
         $pformcontext = [
