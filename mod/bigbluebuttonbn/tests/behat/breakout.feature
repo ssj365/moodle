@@ -12,14 +12,13 @@ Feature: Prepopulate breakout rooms allows meeting breakouts to be generated usi
       | bigbluebuttonbn | RoomRecordings             | Test Room Recording description | C1     | bigbluebuttonbn1 | 0    | 0             | 0                   |
       | bigbluebuttonbn | RoomRecordingsWithbreakout | Test Room with breakout         | C1     | bigbluebuttonbn1 | 0    | 10            | 1                   |
 
-    @javascript
-    Scenario: I should see breakout settings on the module form
-      When I am on the "RoomRecordings" "bigbluebuttonbn activity editing" page logged in as "admin"
-      Then I should see "Room settings"
-      Then I click on "Expand all" "link"
-      Then I should see "Prepopulate breakout rooms"
-      And I should not see "Breakout limit"
-      When I set the field "Prepopulate breakout rooms" to "1"
-      Then I should see "Breakout limit"
-      Then I log out
-      
+  @javascript
+  Scenario: I should see breakout settings on the module form
+    When I am on the "RoomRecordings" "bigbluebuttonbn activity editing" page logged in as "admin"
+    Then I should see "Room settings"
+    Then I click on "Expand all" "link"
+    Then I should see "Prepopulate breakout rooms"
+    And I should not see "Breakout limit"
+    When I set the field "Prepopulate breakout rooms" to "1"
+    Then I should see "Breakout limit"
+    Then I log out
