@@ -58,6 +58,7 @@ class bigbluebutton_proxy extends proxy_base {
      * @param string $pw
      * @param string $logouturl
      * @param string $role
+     * @param bool $guestenabled
      * @param string|null $configtoken
      * @param int $userid
      * @param string|null $createtime
@@ -70,6 +71,7 @@ class bigbluebutton_proxy extends proxy_base {
         string $pw,
         string $logouturl,
         string $role,
+        bool $guestenabled,
         string $configtoken = null,
         int $userid = 0,
         string $createtime = null
@@ -88,9 +90,14 @@ class bigbluebutton_proxy extends proxy_base {
 
         if (!empty($userid)) {
             $data['userID'] = $userid;
-            $data['guest'] = "false";
-        } else {
-            $data['guest'] = "true";
+        }
+        // Check if guest access enabled first before using guest parameter.
+        if ($guestenabled) {
+            if (!empty($userid)) {
+                $data['guest'] = "false";
+            } else {
+                $data['guest'] = "true";
+            }
         }
 
         if (!is_null($createtime)) {

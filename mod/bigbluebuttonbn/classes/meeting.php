@@ -199,6 +199,7 @@ class meeting {
             $this->instance->get_current_user_password(),
             $this->instance->get_logout_url()->out(false),
             $this->instance->get_current_user_role(),
+            $this->instance->is_guest_allowed(),
             null,
             $this->instance->get_user_id(),
             $this->get_meeting_info()->createtime
@@ -218,6 +219,7 @@ class meeting {
             $this->instance->get_current_user_password(),
             $this->instance->get_guest_access_url()->out(false),
             $this->instance->get_current_user_role(),
+            $this->instance->is_guest_allowed(),
             null,
             0,
             $this->get_meeting_info()->createtime
