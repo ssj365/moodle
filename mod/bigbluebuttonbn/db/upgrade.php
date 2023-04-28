@@ -516,6 +516,20 @@ function xmldb_bigbluebuttonbn_upgrade($oldversion = 0) {
 
     // Automatically generated Moodle v4.2.0 release upgrade line.
     // Put any upgrade step following this.
+    if ($oldversion < 2023042800) {
+
+        // Define field breakoutenabled to be added to bigbluebuttonbn.
+        $table = new xmldb_table('bigbluebuttonbn');
+        $field = new xmldb_field('breakoutenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'guestpassword');
+
+        // Conditionally launch add field breakoutenabled.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Bigbluebuttonbn savepoint reached.
+        upgrade_mod_savepoint(true, 2023042800, 'bigbluebuttonbn');
+    }
 
     return true;
 }

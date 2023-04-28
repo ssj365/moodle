@@ -74,6 +74,17 @@ class view_page implements renderable, templatable {
             ))->export_for_template($output);
         }
 
+        $usercount = count_enrolled_users($this->instance->get_context(), '', 0);
+        // Only display the warning when breakout user limit is exceeded.
+        if ($this->instance->is_moderator() && $this->instance->is_breakout_enabled() &&
+            $this->instance->has_breakout_limit_been_reached($usercount)) {
+            $templatedata->breakoutwarning = (new notification(
+                get_string('view_warning_breakout_limit', 'mod_bigbluebuttonbn'),
+                notification::NOTIFY_WARNING,
+                false
+            ))->export_for_template($output);
+        }
+
         $viewwarningmessage = config::get('general_warning_message');
         if ($this->show_view_warning() && !empty($viewwarningmessage)) {
             $templatedata->sitenotification = (object) [

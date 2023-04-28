@@ -286,7 +286,7 @@ class meeting {
             $meetinginfo->guestjoinurl = $instance->get_guest_access_url()->out();
             $meetinginfo->guestpassword = $instance->get_guest_access_password();
         }
-
+        $meetinginfo->breakoutenabled = $instance->is_breakout_enabled();
         $meetinginfo->features = $instance->get_enabled_features();
         return $meetinginfo;
     }
@@ -410,6 +410,27 @@ class meeting {
                 if ($instancevar) {
                     $data['lockSettingsLockOnJoin'] = 'true'; // This will be locked whenever one settings is locked.
                 }
+            }
+        }
+        // First check that enrolled users in the course do not exceed breakout limit.
+        $enrolledusers = count_enrolled_users(context_course::instance($this->instance->get_course_id()),
+        '', 0);
+        if ($this->instance->is_breakout_enabled() &&
+            !$this->instance->has_breakout_limit_been_reached($enrolledusers)) {
+            // Populate breakout room with group roster if groups enabled.
+            $allgroups = groups_get_all_groups($this->instance->get_course_id(), 0 , 0, 'g.*', true);
+            if (!empty($allgroups)) {
+                $groups = [];
+                foreach ($allgroups as $group) {
+                    // Create payload for group roster.
+                    $breakoutgroup = [
+                        'id' => $group->id,
+                        'name' => $group->name,
+                        'roster' => array_keys($group->members),
+                    ];
+                    $groups[] = $breakoutgroup;
+                }
+                $data['groups'] = json_encode($groups);
             }
         }
         return $data;

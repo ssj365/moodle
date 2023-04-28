@@ -397,6 +397,20 @@ class mod_bigbluebuttonbn_mod_form extends moodleform_mod {
         $this->bigbluebuttonbn_mform_add_element($mform, $field['type'], $field['name'], $field['data_type'],
             $field['description_key'], $cfg['muteonstart_default']);
 
+        // If the activity does not yet exist, group mode will be default or what is set at course level.
+        $activitygroupmode = groups_get_course_groupmode($this->_course);
+        if (!empty($this->_cm)) {
+            $activitygroupmode = groups_get_activity_groupmode($this->_cm);
+        }
+        // Group mode must be nogroups at activity level so that all participants are in one meeting.
+        if ($activitygroupmode == NOGROUPS) {
+            $mform->addElement('advcheckbox', 'breakoutenabled',
+                get_string('mod_form_field_breakoutenabled', 'bigbluebuttonbn'));
+        } else {
+            $mform->addElement('hidden', 'breakoutenabled', 0);
+        }
+        $mform->setType('breakoutenabled', PARAM_BOOL);
+        $mform->setDefault('breakoutenabled', 0);
     }
 
     /**

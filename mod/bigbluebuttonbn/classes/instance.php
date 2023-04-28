@@ -1149,6 +1149,28 @@ EOF;
     }
 
     /**
+     * Check whether the breakout limit has been reached.
+     *
+     * @param int $currentusercount The user count to check
+     * @return bool
+     */
+    public function has_breakout_limit_been_reached(int $currentusercount): bool {
+        $breakoutlimit = intval((int) config::get('max_users_for_breakout_sessions'));
+        return $currentusercount > $breakoutlimit;
+    }
+
+    /**
+     * Check if prepopulate breakout enabled in this instance.
+     *
+     * @return bool
+     */
+    public function is_breakout_enabled(): bool {
+        $groupmode = groups_get_activity_groupmode($this->get_cm());
+        return !$this->is_type_recordings_only() && $this->get_instance_var('breakoutenabled')
+            && $groupmode == NOGROUPS;
+    }
+
+    /**
      * Check if this is a valid group for this user/instance,
      *
      *

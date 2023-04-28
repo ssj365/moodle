@@ -49,6 +49,9 @@ class config {
         'SHA512'
     ];
 
+    /** @var int Max users for breakout rooms. BBB cannot process groups with massive number of enrolled students */
+    const MAX_USERS_FOR_BREAKOUT_ROOMS = 200;
+
     /**
      * Returns moodle version.
      *
@@ -124,6 +127,7 @@ class config {
             'default_dpa_accepted' => false,
             'poll_interval' => bigbluebutton_proxy::DEFAULT_POLL_INTERVAL,
             'checksum_algorithm' => self::DEFAULT_CHECKSUM_ALGORITHM,
+            'max_users_for_breakout_sessions' => self::MAX_USERS_FOR_BREAKOUT_ROOMS
         ];
     }
 
@@ -231,6 +235,7 @@ class config {
             'welcome_editable' => self::get('welcome_editable'),
             'poll_interval' => self::get('poll_interval'),
             'guestaccess_enabled' => self::get('guestaccess_enabled'),
+            'max_users_for_breakout_sessions' => self::get('max_users_for_breakout_sessions')
         ];
     }
 

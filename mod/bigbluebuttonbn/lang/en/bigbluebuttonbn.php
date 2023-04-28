@@ -423,6 +423,7 @@ $string['mod_form_field_disableprivatechat'] = 'Disable private chat';
 $string['mod_form_field_disablepublicchat'] = 'Disable public chat';
 $string['mod_form_field_disablenote'] = 'Disable shared notes';
 $string['mod_form_field_hideuserlist'] = 'Hide user list';
+$string['mod_form_field_breakoutenabled'] = 'Use course groups for breakout rooms (only when not using group mode)';
 $string['mod_form_locksettings'] = 'Lock settings';
 $string['report_join_info']  = '{$a} meeting(s)';
 $string['report_play_recording_info']  = '{$a} recording(s) played';
@@ -639,6 +640,7 @@ $string['view_warning_default_server'] = 'This site is using a <a href="https://
 <li>Recordings expire after seven (7) days and are not downloadable</li>
 <li>Student webcams are only visible to the moderator.</li>
 </ol>';
+$string['view_warning_breakout_limit'] = 'Breakout rooms can\'t be created because there are more than 200 users enrolled in the course.';
 
 $string['view_room'] = 'View room';
 $string['index_error_noinstances'] = 'There are no instances of BigBlueButton rooms';

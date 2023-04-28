@@ -602,4 +602,67 @@ class instance_test extends advanced_testcase {
         $this->assertNotEmpty($instance->get_guest_access_password());
     }
 
+    /**
+     * Ensure that the has_breakout_limit_been_reached function works as expected.
+     *
+     * @dataProvider has_breakout_limit_been_reached_provider
+     * @param bool $limitreached
+     * @param bool $expected
+     * @covers ::has_breakout_limit_been_reached
+     */
+    public function test_has_breakout_limit_been_reached(bool $limitreached, bool $expected): void {
+        $this->resetAfterTest();
+        ['record' => $record ] = $this->get_test_instance();
+        $instance = instance::get_from_instanceid($record->id);
+        $breakoutlimit = \mod_bigbluebuttonbn\local\config::MAX_USERS_FOR_BREAKOUT_ROOMS;
+        if ($limitreached) {
+            $usercount = $breakoutlimit + 1;
+            $this->assertEquals($expected, $instance->has_breakout_limit_been_reached($usercount));
+        } else {
+            $usercount = $breakoutlimit - 1;
+            $this->assertEquals($expected, $instance->has_breakout_limit_been_reached($usercount));
+            $usercount = $breakoutlimit;
+            $this->assertEquals($expected, $instance->has_breakout_limit_been_reached($usercount));
+        }
+    }
+
+    /**
+     * Data provider for the test_has_breakout_limit_been_reached function.
+     *
+     * @return array
+     */
+    public function has_breakout_limit_been_reached_provider(): array {
+        return [
+            'Users exceed limit' => [true, true],
+            'Users do not exceed limit' => [false, false],
+        ];
+    }
+
+    /**
+     * Test breakout enabled flag
+     *
+     * @dataProvider is_breakout_enabled_provider
+     * @param bool $enabled
+     * @param bool $expected
+     * @covers ::is_breakout_enabled
+     */
+    public function test_is_breakout_enabled(bool $enabled, $expected): void {
+        $this->resetAfterTest();
+        ['record' => $record ] = $this->get_test_instance(['breakoutenabled' => $enabled]);
+        $instance = instance::get_from_instanceid($record->id);
+        $this->assertEquals($enabled, $instance->is_breakout_enabled());
+    }
+
+    /**
+     * Data provider for the test_is_breakout_enabled function.
+     *
+     * @return array
+     */
+    public function is_breakout_enabled_provider(): array {
+        return [
+            'Breakout option enabled' => [true, true],
+            'Breakout option not enabled' => [false, false],
+        ];
+    }
+
 }
