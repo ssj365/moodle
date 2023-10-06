@@ -65,6 +65,6 @@ class cognitive_depth extends activity_base {
      * @return int
      */
     public function get_cognitive_depth_level(cm_info $cm) {
-        return self::COGNITIVE_LEVEL_4;
+        return self::COGNITIVE_LEVEL_2;
     }
 }
