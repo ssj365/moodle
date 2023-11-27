@@ -1008,6 +1008,28 @@ class settings {
                 $item,
                 $experimentalfeaturessetting
             );
+            $item = new admin_setting_configcheckbox(
+                'bigbluebuttonbn_moderator_approval_default',
+                get_string('config_moderator_approval_default', 'bigbluebuttonbn'),
+                get_string('config_moderator_approval_default_description', 'bigbluebuttonbn'),
+                0
+            );
+            $this->add_conditional_element(
+                'bigbluebuttonbn_moderator_approval_default',
+                $item,
+                $experimentalfeaturessetting
+            );
+            $item = new admin_setting_configcheckbox(
+                'bigbluebuttonbn_moderator_approval_editable',
+                get_string('config_moderator_approval_editable', 'bigbluebuttonbn'),
+                get_string('config_moderator_approval_editable_description', 'bigbluebuttonbn'),
+                0,
+            );
+            $this->add_conditional_element(
+                'bigbluebuttonbn_moderator_approval_editable',
+                $item,
+                $experimentalfeaturessetting
+            );
         }
         $this->admin->add($this->parent, $experimentalfeaturessetting);
     }

@@ -109,9 +109,18 @@ class bigbluebutton_proxy extends proxy_base {
         if ($instance->is_guest_allowed()) {
             if (!$isguestjoin) {
                 $data['userID'] = $instance->get_user_id();
-                $data['guest'] = "false";
+                if ($instance->is_moderator_approval_required_for_enrolled()) {
+                    // GuestPolicy will be 'ASK_MODERATOR' if true.
+                    $data['guest'] = "true";
+                } else {
+                    $data['guest'] = "false";
+                }
             } else {
-                $data['guest'] = "true";
+                if ($instance->is_moderator_approval_required_for_guest()) {
+                    $data['guest'] = "true";
+                } else {
+                    $data['guest'] = "false";
+                }
             }
         } else {
             $data['userID'] = $instance->get_user_id();

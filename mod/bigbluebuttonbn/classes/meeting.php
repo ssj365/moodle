@@ -408,10 +408,11 @@ class meeting {
         if ($this->instance->get_mute_on_start()) {
             $data['muteOnStart'] = 'true';
         }
-        // Here a bit of a change compared to the API default behaviour: we should not allow guest to join
-        // a meeting managed by Moodle by default.
-        if ($this->instance->is_guest_allowed()) {
-            $data['guestPolicy'] = $this->instance->is_moderator_approval_required() ? 'ASK_MODERATOR' : 'ALWAYS_ACCEPT';
+        // The guestPolicy will be set if either guests or enrolled users require moderator approval.
+        if (($this->instance->is_guest_allowed() && $this->instance->is_moderator_approval_required_for_guest()) ||
+            $this->instance->is_moderator_approval_required_for_enrolled()) {
+            // To avoid overriding custom server config, we will only set the policy here.
+            $data['guestPolicy'] = 'ASK_MODERATOR';
         }
         // Locks settings.
         foreach (self::LOCK_SETTINGS_MEETING_DATA as $instancevarname => $lockname) {

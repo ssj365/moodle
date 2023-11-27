@@ -861,13 +861,25 @@ EOF;
     }
 
     /**
-     * Moderator approval required ?
+     * Moderator approval required for enrolled users.
+     *
+     * @return bool
+     */
+    public function is_moderator_approval_required_for_enrolled(): bool {
+        if (config::get('moderator_approval_editable')) {
+            return $this->get_instance_var('mustapproveenrolled');
+        }
+        return config::get('moderator_approval_default');
+    }
+
+    /**
+     * Moderator approval required for guests only?
      *
      * By default we leave it as false as "ALWAYS_ACCEPT" is the default value for
      * the guestPolicy create parameter (https://docs.bigbluebutton.org/dev/api.html)
      * @return bool
      */
-    public function is_moderator_approval_required(): bool {
+    public function is_moderator_approval_required_for_guest(): bool {
         return $this->get_instance_var('mustapproveuser') ?? false;
     }
     /**

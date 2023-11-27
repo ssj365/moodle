@@ -303,6 +303,11 @@ $string['config_hideuserlist_editable_description'] = 'Hide user list by default
 $string['config_experimental_features'] = 'Experimental features';
 $string['config_experimental_features_description'] = 'Configuration for experimental features.';
 
+$string['config_moderator_approval_default'] = 'Require approval before enrolled user can join enabled by default';
+$string['config_moderator_approval_default_description'] = 'If enabled enrolled users must be admitted by moderator before joining room.';
+$string['config_moderator_approval_editable'] = 'Require approval before enrolled user join can be edited';
+$string['config_moderator_approval_editable_description'] = 'Require approval before enrolled user joins can be edited when the instance is added or updated.';
+
 $string['general_error_unable_connect'] = 'Unable to connect. Please check the url of the BigBlueButton server AND check to see if the BigBlueButton server is running.
 Details : {$a}';
 $string['general_error_no_answer'] = 'Empty response. Please check the url of the BigBlueButton server AND check to see if the BigBlueButton server is running.';
@@ -378,6 +383,7 @@ $string['mod_form_field_duration_help'] = 'Setting the duration for a meeting wi
 $string['mod_form_field_duration'] = 'Duration';
 $string['mod_form_field_guestallowed'] = 'Allow guest access';
 $string['mod_form_field_mustapproveuser'] = 'Guests joining must be admitted by a moderator';
+$string['mod_form_field_mustapproveenrolled'] = 'Enrolled users joining must be admitted by a moderator';
 $string['mod_form_field_userlimit'] = 'User limit';
 $string['mod_form_field_userlimit_help'] = 'The maximum number of users allowed in a session. Set to 0 to allow an unlimited number of users.';
 $string['mod_form_field_name'] = 'Room name';

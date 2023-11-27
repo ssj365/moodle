@@ -401,6 +401,70 @@ class meeting_test extends \advanced_testcase {
         $this->assertEquals(3, $meetinginfo->totalusercount);
         $this->assertEquals(1, $meetinginfo->moderatorcount);
     }
+
+    /**
+     * Test that guestPolicy is set to correct value.
+     * @param bool $guestaccess
+     * @param bool $guestapproval
+     * @param bool $enrolledapproval
+     * @param string|null $expected
+     *
+     * @covers ::create_meeting_data
+     * @dataProvider guest_policy_provider
+     */
+    public function test_guest_policy(bool $guestaccess, bool $guestapproval, bool $enrolledapproval, ?string $expected): void {
+        global $CFG;
+        $this->resetAfterTest();
+        $CFG->bigbluebuttonbn['guestaccess_enabled'] = $guestaccess;
+        $CFG->bigbluebuttonbn['moderator_approval_editable'] = $enrolledapproval;
+        $bbbgenerator = $this->getDataGenerator()->get_plugin_generator('mod_bigbluebuttonbn');
+        $meetinginfo = [
+            'course' => $this->get_course()->id,
+            'type' => instance::TYPE_ALL,
+            'mustapproveenrolled' => $enrolledapproval,
+            'guestallowed' => $guestaccess,
+            'mustapproveuser' => $guestapproval,
+        ];
+        $activity = $bbbgenerator->create_instance($meetinginfo, [
+            'mustapproveenrolled' => $enrolledapproval,
+            'guestallowed' => $guestaccess,
+            'mustapproveuser' => $guestapproval,
+        ]);
+        $instance = instance::get_from_instanceid($activity->id);
+        $meeting = new meeting($instance);
+
+        $reflection = new \ReflectionClass(get_class($meeting));
+        $method = $reflection->getMethod('create_meeting_data');
+        $method->setAccessible(true);
+
+        $data = $method->invoke($meeting);
+
+        if ($enrolledapproval || $guestapproval) {
+            $this->assertEquals($expected, $data['guestPolicy']);
+        } else {
+            $this->assertArrayNotHasKey('guestPolicy', $data);
+        }
+    }
+
+    /**
+     * Data provider for the test_guest_policy function.
+     *
+     * @return array
+     */
+    public static function guest_policy_provider(): array {
+        return [
+            'Guest access disabled, only enrolled need approval' => [false, false, true, 'ASK_MODERATOR'],
+            'Guest access disabled, no user needs approval' => [false, false, false, null],
+            'Guest access enabled, only enrolled need approval' => [true, false, true, 'ASK_MODERATOR'],
+            'Guest access enabled, only guest need approval' => [true, true, false, 'ASK_MODERATOR'],
+            'Guest access enabled, both enrolled and guest need approval' => [true, true, true, 'ASK_MODERATOR'],
+            'Guest access enabled, no user needs approval' => [true, false, false, null],
+        ];
+    }
+
+
+
+
     /**
      * Send a join meeting API CALL
      *
