@@ -26,6 +26,7 @@
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use mod_bigbluebuttonbn\local\config;
 use Behat\Gherkin\Node\TableNode;
 use mod_bigbluebuttonbn\instance;
 use Moodle\BehatExtension\Exception\SkippedException;
@@ -50,16 +51,9 @@ class behat_mod_bigbluebuttonbn extends behat_base {
         if (defined('TEST_MOD_BIGBLUEBUTTONBN_MOCK_SERVER')) {
             $this->send_mock_request('backoffice/reset');
         }
-    }
-
-    /**
-     * Accept dpa and enable bigbluebuttonbn plugin.
-     *
-     * @When /^I accept dpa and enable bigbluebuttonbn plugin$/
-     */
-    public function i_accept_dpa_and_enable_bigbluebuttonbn_plugin(): void {
-        set_config('bigbluebuttonbn_default_dpa_accepted', true);
-        $this->execute('behat_general::i_enable_plugin', ['bigbluebuttonbn', 'mod']);
+        // Fields are empty by default which causes tests to fail.
+        set_config('bigbluebuttonbn_server_url', config::DEFAULT_SERVER_URL);
+        set_config('bigbluebuttonbn_shared_secret', config::DEFAULT_SHARED_SECRET);
     }
 
     /**
