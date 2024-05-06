@@ -131,8 +131,8 @@ class recording_proxy extends proxy_base {
      * @return null|array
      */
     public static function fetch_recording(string $recordingid): ?array {
-        $data = self::fetch_recordings([$recordingid]);
-
+        $result = self::fetch_recordings([$recordingid]);
+        $data = $result['recordings'];
         if (array_key_exists($recordingid, $data)) {
             return $data[$recordingid];
         }
@@ -173,24 +173,25 @@ class recording_proxy extends proxy_base {
      * We use a cache to store recording indexed by keyids/recordingID.
      * @param array $keyids list of recordingids
      * @return array (associative) with recordings indexed by recordID, each recording is a non sequential array
-     *  and sorted by {@see recording_proxy::sort_recordings}
+     *  and sorted by {@see recording_proxy::sort_recordings} and an array containing unfetched $keyids.
      */
     public static function fetch_recordings(array $keyids = []): array {
         $recordings = [];
 
         // If $ids is empty return array() to prevent a getRecordings with meetingID and recordID set to ''.
         if (empty($keyids)) {
-            return $recordings;
+            return ['recordings' => $recordings, 'unfetchedids' => []];
         }
         $cache = cache::make('mod_bigbluebuttonbn', 'recordings');
         $currentfetchcache = cache::make('mod_bigbluebuttonbn', 'currentfetch');
         $recordings = array_filter($cache->get_many($keyids));
         $missingkeys = array_diff(array_values($keyids), array_keys($recordings));
 
-        $recordings += self::do_fetch_recordings($missingkeys);
+        $result = self::do_fetch_recordings($missingkeys);
+        $recordings += $result['recordings'];
         $cache->set_many($recordings);
         $currentfetchcache->set_many(array_flip(array_keys($recordings)));
-        return $recordings;
+        return ['recordings' => $recordings, 'unfetchedids' => $result['unfetchedids']];
     }
 
     /**
@@ -198,17 +199,16 @@ class recording_proxy extends proxy_base {
      *
      * @param array $keyids list of meetingids
      * @return array (associative) with recordings indexed by recordID, each recording is a non sequential array
-     *  and sorted by {@see recording_proxy::sort_recordings}
+     *  and sorted by {@see recording_proxy::sort_recordings} and an array containing unfetched $keyids.
      */
     public static function fetch_recording_by_meeting_id(array $keyids = []): array {
         $recordings = [];
 
         // If $ids is empty return array() to prevent a getRecordings with meetingID and recordID set to ''.
         if (empty($keyids)) {
-            return $recordings;
+            return ['recordings' => $recordings, 'unfetchedids' => []];
         }
-        $recordings = self::do_fetch_recordings($keyids, 'meetingID');
-        return $recordings;
+        return self::do_fetch_recordings($keyids, 'meetingID');
     }
 
     /**
@@ -217,66 +217,63 @@ class recording_proxy extends proxy_base {
      * @param array $keyids list of meetingids or recordingids
      * @param string $key the param name used for the BBB request (<recordID>|meetingID)
      * @return array (associative) with recordings indexed by recordID, each recording is a non sequential array.
-     *  and sorted {@see recording_proxy::sort_recordings}
+     *  and sorted {@see recording_proxy::sort_recordings} and an array containing unfetched $keyids
      */
     private static function do_fetch_recordings(array $keyids = [], string $key = 'recordID'): array {
         $recordings = [];
+        $unfetchedids = [];
         $pagesize = 25;
         while ($ids = array_splice($keyids, 0, $pagesize)) {
-            $fetchrecordings = self::fetch_recordings_page($ids, $key);
-            $recordings += $fetchrecordings;
+            $result = self::fetch_recordings_page($ids, $key);
+            if (!$result['success']) {
+                $unfetchedids = array_merge($unfetchedids, $ids);
+                continue; // Skip this page as the response is not valid but we will keep record of all unfetched ids.
+            }
+            $recordings += $result['recordings'];
         }
         // Sort recordings.
-        return self::sort_recordings($recordings);
+        return ['recordings' => self::sort_recordings($recordings), 'unfetchedids' => $unfetchedids];
     }
     /**
      * Helper function to fetch a page of recordings from the remote server.
      *
      * @param array $ids
      * @param string $key
-     * @return array
+     * @return array an associative array containing recordings list and fetch success.
      */
     private static function fetch_recordings_page(array $ids, $key = 'recordID'): array {
         // The getRecordings call is executed using a method GET (supported by all versions of BBB).
         $xml = self::fetch_endpoint_xml('getRecordings', [$key => implode(',', $ids), 'state' => 'any']);
 
-        if (!$xml) {
-            return [];
-        }
-
-        if ($xml->returncode != 'SUCCESS') {
-            return [];
-        }
-
-        if (!isset($xml->recordings)) {
-            return [];
-        }
-
-        $recordings = [];
-        // If there were recordings already created.
-        foreach ($xml->recordings->recording as $recordingxml) {
-            $recording = self::parse_recording($recordingxml);
-            $recordings[$recording['recordID']] = $recording;
-            // Check if there are any child.
-            if (isset($recordingxml->breakoutRooms->breakoutRoom)) {
-                $breakoutrooms = [];
-                foreach ($recordingxml->breakoutRooms->breakoutRoom as $breakoutroom) {
-                    $breakoutrooms[] = trim((string) $breakoutroom);
-                }
-                if ($breakoutrooms) {
-                    $xml = self::fetch_endpoint_xml('getRecordings', ['recordID' => implode(',', $breakoutrooms)]);
-                    if ($xml && $xml->returncode == 'SUCCESS' && isset($xml->recordings)) {
-                        // If there were already created meetings.
-                        foreach ($xml->recordings->recording as $subrecordingxml) {
-                            $recording = self::parse_recording($subrecordingxml);
-                            $recordings[$recording['recordID']] = $recording;
+        // Response from the server must be valid.
+        if ($xml && $xml->returncode == 'SUCCESS' && isset($xml->recordings)) {
+            $recordings = [];
+            // If there were recordings already created.
+            foreach ($xml->recordings->recording as $recordingxml) {
+                $recording = self::parse_recording($recordingxml);
+                $recordings[$recording['recordID']] = $recording;
+                // Check if there are any child.
+                if (isset($recordingxml->breakoutRooms->breakoutRoom)) {
+                    $breakoutrooms = [];
+                    foreach ($recordingxml->breakoutRooms->breakoutRoom as $breakoutroom) {
+                        $breakoutrooms[] = trim((string) $breakoutroom);
+                    }
+                    if ($breakoutrooms) {
+                        $xml = self::fetch_endpoint_xml('getRecordings', ['recordID' => implode(',', $breakoutrooms)]);
+                        if ($xml && $xml->returncode == 'SUCCESS' && isset($xml->recordings)) {
+                            // If there were already created meetings.
+                            foreach ($xml->recordings->recording as $subrecordingxml) {
+                                $recording = self::parse_recording($subrecordingxml);
+                                $recordings[$recording['recordID']] = $recording;
+                            }
                         }
                     }
                 }
             }
+            return ['recordings' => $recordings, 'success' => true];
         }
-
-        return $recordings;
+        debugging('getRecordings API call failed. No recording data retrieved from BBB server for ids: ' . implode(', ', $ids));
+        return ['recordings' => [], 'success' => false];
     }
 
     /**
