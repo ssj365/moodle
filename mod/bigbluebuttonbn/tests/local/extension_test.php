@@ -397,6 +397,7 @@ final class extension_test extends \advanced_testcase {
      */
     private function enable_plugins(bool $bbbenabled) {
         // First make sure that either BBB is enabled or not.
+        set_config('bigbluebuttonbn_server_url', $bbbenabled ? config::DEFAULT_SERVER_URL : '');
         \core\plugininfo\mod::enable_plugin('bigbluebuttonbn', $bbbenabled ? 1 : 0);
         $plugin = extension::BBB_EXTENSION_PLUGIN_NAME . '_simple';
         if ($bbbenabled) {

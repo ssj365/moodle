@@ -719,6 +719,26 @@ function bigbluebuttonbn_print_recent_activity(object $course, bool $viewfullnam
     return true;
 }
 
+/**
+ * Callback method executed prior to enabling the activity module.
+ *
+ * @return bool Whether to proceed and enable the plugin or not.
+ */
+function bigbluebuttonbn_pre_enable_plugin_actions(): bool {
+    global $PAGE;
+
+    // By default there are no server credentials and the plugin should not be enabled.
+    if ((empty(config::get('server_url')))) {
+        $url = new moodle_url('/admin/category.php', ['category' => 'modbigbluebuttonbnfolder']);
+        \core\notification::add(
+            get_string('enable_empty_credentials', 'mod_bigbluebuttonbn', $url->out(false)),
+            \core\notification::ERROR
+        );
+        return false;
+    }
+    // Otherwise, continue and enable the plugin.
+    return true;
+}
 
 /**
  * Creates a number of BigblueButtonBN activities.
