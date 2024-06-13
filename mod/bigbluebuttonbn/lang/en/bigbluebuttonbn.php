@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['activityoverview'] = 'You have upcoming BigBlueButton sessions';
 $string['credentials_warning'] = 'The use of default server credentials will soon expire (see note above to obtain new credentials).';
+$string['enable_empty_credentials'] = 'Before enabling this plugin, you must enter your <a href="{$a}" target="_blank">BigBlueButton server URL and security secret</a>.';
 $string['bbbduetimeoverstartingtime'] = 'The close time must be later than the open time.';
 $string['bbbdurationwarning'] = 'The maximum duration for this session is %duration% minutes.';
 $string['bbbrecordwarning'] = 'This session may be recorded.';
@@ -141,6 +142,8 @@ $string['config_shared_secret'] = 'BigBlueButton shared secret';
 $string['config_shared_secret_description'] = 'The security secret of your BigBlueButton server.';
 $string['config_checksum_algorithm'] = 'BigBlueButton server checksum algorithm';
 $string['config_checksum_algorithm_description'] = 'SHA1 is compatible with older servers. SHA256 and SHA512 are more secure. SHA512 is FIPS 140-2 compliant.';
+
+$string['config_empty_credentials_warning'] = 'Before using this plugin, you must enter your BigBlueButton server URL and security secret.';
 
 $string['config_recording'] = 'Recording';
 $string['config_recording_description'] = 'These settings are feature specific';
