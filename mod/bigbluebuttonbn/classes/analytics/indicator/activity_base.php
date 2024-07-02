@@ -44,4 +44,13 @@ abstract class activity_base extends community_of_inquiry_activity {
         // BigBlueButtonBN's feedback is not contained in grades.
         return false;
     }
+
+    /**
+     * feedback_viewed_events
+     *
+     * @return string[]
+     */
+    protected function feedback_viewed_events() {
+        return array('\mod_bigbluebuttonbn\event\course_module_viewed');
+    }
 }
