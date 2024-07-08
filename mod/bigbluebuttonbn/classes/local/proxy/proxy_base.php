@@ -62,6 +62,14 @@ abstract class proxy_base {
         ?int $instanceid = null
     ): string {
         $baseurl = self::sanitized_url() . $action . '?';
+
+        // Extension data that should override core plugin data.
+        ['data' => $overridedata, 'metadata' => $overridemetadata] =
+            extension::action_url_overrides($action, $data, $metadata, $instanceid);
+        $data = array_replace($data, $overridedata ?? []);
+        $metadata = array_replace($metadata, $overridemetadata ?? []);
+
+        // Extension data that should be additional data.
         ['data' => $additionaldata, 'metadata' => $additionalmetadata] =
             extension::action_url_addons($action, $data, $metadata, $instanceid);
         $data = array_merge($data, $additionaldata ?? []);

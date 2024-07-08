@@ -18,6 +18,7 @@ namespace mod_bigbluebuttonbn;
 use cache;
 use cm_info;
 use mod_bigbluebuttonbn\local\extension\action_url_addons;
+use mod_bigbluebuttonbn\local\extension\action_url_overrides;
 use mod_bigbluebuttonbn\local\extension\custom_completion_addons;
 use mod_bigbluebuttonbn\local\extension\mod_form_addons;
 use mod_bigbluebuttonbn\local\extension\mod_instance_helper;
@@ -67,6 +68,38 @@ class extension {
         return [
             'data' => $additionaldata,
             'metadata' => $additionalmetadata
+        ];
+    }
+
+    /**
+     * Invoke a subplugin hook that will return overriding parameters.
+     *
+     * @param string $action
+     * @param array $data
+     * @param array $metadata
+     * @param int|null $instanceid
+     * @return array associative array with the overrides of data and metadata (indexed by 'data' and
+     * 'metadata' keys).
+     */
+    public static function action_url_overrides(
+        string $action = '',
+        array $data = [],
+        array $metadata = [],
+        ?int $instanceid = null
+    ): array {
+        $allmutationclass = self::get_instances_implementing(action_url_overrides::class);
+        $overridedata = [];
+        $overridemetadata = [];
+        foreach ($allmutationclass as $mutationclass) {
+            // Here we intentionally just pass data and metadata and not the result as we
+            // do not want subplugin to assume that another subplugin is doing a modification.
+            ['data' => $newdata, 'metadata' => $newmetadata] = $mutationclass->execute($action, $data, $metadata, $instanceid);
+            $overridedata = array_merge($overridedata, $newdata ?? []);
+            $overridemetadata = array_merge($overridemetadata, $newmetadata ?? []);
+        }
+        return [
+            'data' => $overridedata,
+            'metadata' => $overridemetadata
         ];
     }
 
