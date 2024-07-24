@@ -1002,6 +1002,18 @@ EOF;
     }
 
     /**
+     * Whether to show the preuploaded presentation on the activity page.
+     *
+     * @return bool
+     */
+    public function should_show_presentation(): bool {
+        if (config::get('showpresentation_editable')) {
+            return (bool) $this->get_instance_var('showpresentation');
+        }
+        return config::get('showpresentation_default');
+    }
+
+    /**
      * Whether the current time is before the scheduled start time.
      *
      * @return bool

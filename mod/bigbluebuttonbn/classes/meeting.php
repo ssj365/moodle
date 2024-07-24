@@ -283,6 +283,8 @@ class meeting {
         $presentation = $instance->get_presentation(); // This is for internal use.
         if (!empty($presentation)) {
             $meetinginfo->presentations[] = $presentation;
+            // Moderators should always be able to see presentation file.
+            $meetinginfo->showpresentations = $instance->should_show_presentation() || $instance->is_moderator();
         }
         $meetinginfo->attendees = [];
         if (!empty($info['attendees'])) {
