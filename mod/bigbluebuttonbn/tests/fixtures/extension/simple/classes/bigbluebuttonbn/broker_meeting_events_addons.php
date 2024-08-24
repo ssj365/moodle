@@ -14,47 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_bigbluebuttonbn\local\extension;
+namespace bbbext_simple\bigbluebuttonbn;
 
-use stdClass;
-use Firebase\JWT\Key;
 use mod_bigbluebuttonbn\broker;
 use mod_bigbluebuttonbn\instance;
-use mod_bigbluebuttonbn\meeting;
 
 /**
- * A class to deal with broker addons in a subplugin
+ * When meeting_events callback is implemented by BigBlueButton, Moodle receives a POST request
+ * which is processed in the function using super globals.
  *
- * @package   mod_bigbluebuttonbn
+ * @package   bbbext_b3dummy_broker_meeting_events
  * @copyright 2024 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
-abstract class broker_meeting_events_addons {
-
-    /**
-     * @var instance|null $instance BigBlueButton instance if any
-     */
-    protected $instance = null;
-
-    /**
-     * @var string|null $data data to be processed
-     */
-    protected $data = null;
-
-    /**
-     * Constructor
-     *
-     * @param instance|null $instance BigBlueButton instance if any
-     * @param string|null $data data to be processed
-     */
-    public function __construct(?instance $instance = null, ?string $data = null) {
-        $this->instance = $instance;
-        $this->data = $data;
-    }
-
+class broker_meeting_events_addons extends \mod_bigbluebuttonbn\local\extension\broker_meeting_events_addons {
     /**
      * Data processing action
      */
-    abstract public function process_action();
+    public function process_action() {
+        global $DB;
+        if ($this->instance) {
+            $bigbluebuttonbnid = $this->instance->get_instance_id();
+            $record = $DB->get_record('bbbext_simple', [
+                'bigbluebuttonbnid' => $bigbluebuttonbnid,
+            ]);
+            if ($record) {
+                $record->meetingevents = $this->data;
+                return $DB->update_record('bbbext_simple', $record);
+            }
+        }
+        return false;
+    }
 }
