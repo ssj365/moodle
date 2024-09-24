@@ -17,6 +17,7 @@ namespace mod_bigbluebuttonbn\local;
 
 use backup;
 use backup_controller;
+use mod_bigbluebuttonbn\broker;
 use mod_bigbluebuttonbn\completion\custom_completion;
 use mod_bigbluebuttonbn\extension;
 use mod_bigbluebuttonbn\instance;
@@ -405,18 +406,15 @@ class extension_test extends \advanced_testcase {
         }
         $result = $plugingenerator->send_all_events($instance);
         $this->assertNotEmpty($result->data);
-        $resultstring = json_encode($result->data);
-        $data = json_decode($resultstring);
-
-        meeting::meeting_events($instance, $data);
-        $extensions = extension::broker_meeting_events_addons_instances($instance, json_encode($data));
-        foreach ($extensions as $extension) {
-            $extension->process_action();
-        }
+        $data = json_encode($result->data);
+        $reflection = new \ReflectionClass(broker::class);
+        $method = $reflection->getMethod('process_extension_actions');
+        $method->setAccessible(true);
+        $method->invokeArgs(null, [$instance, $data]);
         $addondata = $DB->get_field('bbbext_simple', 'meetingevents', ['bigbluebuttonbnid' => $bbactivity->id]);
         $addondata = json_decode($addondata);
         // Check that the data is received.
-        $this->assertEquals(json_encode($addondata), $resultstring);
+        $this->assertEquals(json_encode($addondata), $data);
     }
 
 

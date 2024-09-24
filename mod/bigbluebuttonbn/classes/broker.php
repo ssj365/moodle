@@ -154,12 +154,7 @@ class broker {
             // Convert JSON string to a JSON object.
             $jsonobj = json_decode($jsonstr);
             $headermsg = meeting::meeting_events($instance, $jsonobj);
-
-            // Hooks for extensions.
-            $extensions = extension::broker_meeting_events_addons_instances($instance, $jsonstr);
-            foreach ($extensions as $extension) {
-                $extension->process_action();
-            }
+            self::process_extension_actions($instance, $jsonstr);
         } catch (Exception $e) {
             $msg = 'Caught exception: ' . $e->getMessage();
             debugging($msg, DEBUG_DEVELOPER);
@@ -169,6 +164,20 @@ class broker {
         header($headermsg);
     }
 
+    /**
+     * Process meeting events extension actions.
+     *
+     * @param instance $instance
+     * @param string $jsonstr
+     * @return void
+     */
+    protected static function process_extension_actions(instance $instance, string $jsonstr) {
+        // Hooks for extensions.
+        $extensions = extension::broker_meeting_events_addons_instances($instance, $jsonstr);
+        foreach ($extensions as $extension) {
+            $extension->process_action();
+        }
+    }
 
     /**
      * Get authorisation token
