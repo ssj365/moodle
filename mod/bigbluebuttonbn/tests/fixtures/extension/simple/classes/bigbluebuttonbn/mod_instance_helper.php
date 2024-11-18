@@ -36,6 +36,7 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
         $DB->insert_record('bbbext_simple', (object) [
             'bigbluebuttonbnid' => $bigbluebuttonbn->id,
             'newfield' => $bigbluebuttonbn->newfield ?? '',
+            'meetingevents' => $bigbluebuttonbn->meetingevents ?? '',
         ]);
     }
 
@@ -54,9 +55,11 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
             $record = new stdClass();
             $record->bigbluebuttonbnid = $bigbluebuttonbn->id;
             $record->newfield = $bigbluebuttonbn->newfield ?? '';
+            $record->meetingevents = $bigbluebuttonbn->meetingevents ?? '';
             $DB->insert_record('bbbext_simple', $record);
         } else {
             $record->newfield = $bigbluebuttonbn->newfield ?? '';
+            $record->meetingevents = $bigbluebuttonbn->meetingevents ?? '';
             $DB->update_record('bbbext_simple', $record);
         }
     }
