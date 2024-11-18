@@ -500,6 +500,10 @@ class meeting {
         $meta['callback'] = 'meeting_events';
         $meta['meetingid'] = $data->{'meeting_id'};
 
+        // Remove attendees from data to avoid duplicating callback logs; they are stored as summary logs.
+        $meta['data'] = clone $data->{'data'};
+        unset($meta['data']->{'attendees'});
+
         $eventcount = logger::log_event_callback($instance, $overrides, $meta);
         if ($eventcount === 1) {
             // Process the events.
