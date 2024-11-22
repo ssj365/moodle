@@ -22,6 +22,7 @@ use mod_bigbluebuttonbn\local\extension\broker_meeting_events_addons;
 use mod_bigbluebuttonbn\local\extension\custom_completion_addons;
 use mod_bigbluebuttonbn\local\extension\mod_form_addons;
 use mod_bigbluebuttonbn\local\extension\mod_instance_helper;
+use mod_bigbluebuttonbn\local\plugins\admin_plugin_manager;
 use stdClass;
 use core_plugin_manager;
 
@@ -80,8 +81,7 @@ class extension {
      */
     protected static function get_instances_implementing(string $classname, ?array $newparameters = []): array {
         $classes = self::get_classes_implementing($classname);
-        sort($classes); // Make sure all extension classes are returned in the same order. This is arbitrarily in
-        // alphabetical order and depends on the classname but this one way to ensure consistency across calls.
+        ksort($classes); // Make sure all extension classes are returned in the correct order.
         return array_map(function($targetclassname) use ($newparameters) {
             // If $newparameters is null, the constructor will be called without parameters.
             return new $targetclassname(...$newparameters);
@@ -100,6 +100,8 @@ class extension {
         $classbasename = end($classnamecomponents);
         $allsubs = core_plugin_manager::instance()->get_plugins_of_type(self::BBB_EXTENSION_PLUGIN_NAME);
         $extensionclasses = [];
+        $sortedlist = admin_plugin_manager::get_sorted_plugins_list(); // Make sure to use the most updated list.
+        $sortedlist = array_flip($sortedlist);
         foreach ($allsubs as $sub) {
             if (!$sub->is_enabled()) {
                 continue;
@@ -112,7 +114,13 @@ class extension {
                 debugging("The class $targetclassname should extend $classname in the subplugin {$sub->name}. Ignoring.");
                 continue;
             }
-            $extensionclasses[] = $targetclassname;
+            if (!isset($sortedlist[$sub->name])) {
+                debugging("The class $targetclassname does not belong to an existing subplugin. Ignoring");
+                continue;
+            }
+            // Return all extension classes based on subplugin order on manage extension page.
+            $sortorder = $sortedlist[$sub->name];
+            $extensionclasses[$sortorder] = $targetclassname;
         }
         return $extensionclasses;
     }

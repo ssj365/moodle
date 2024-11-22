@@ -110,7 +110,7 @@ class admin_plugin_manager {
         $table->set_attribute('class', 'admintable generaltable');
         $table->setup();
 
-        $plugins = $this->get_sorted_plugins_list();
+        $plugins = self::get_sorted_plugins_list();
         $instances = core_plugin_manager::instance()->get_plugins_of_type(extension::BBB_EXTENSION_PLUGIN_NAME);
 
         foreach ($plugins as $idx => $plugin) {
@@ -189,7 +189,7 @@ class admin_plugin_manager {
      *
      * @return array The list of plugins
      */
-    public function get_sorted_plugins_list(): array {
+    public static function get_sorted_plugins_list(): array {
         $names = core_component::get_plugin_list(extension::BBB_EXTENSION_PLUGIN_NAME);
 
         $result = [];
@@ -299,7 +299,7 @@ class admin_plugin_manager {
      * @return string The next page to display
      */
     private function move_plugin(string $plugintomove, string $dir): string {
-        $plugins = $this->get_sorted_plugins_list();
+        $plugins = self::get_sorted_plugins_list();
         $plugins = array_values($plugins);
         $currentindex = array_search($plugintomove, $plugins);
         if ($currentindex === false) {
