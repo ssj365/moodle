@@ -698,4 +698,72 @@ final class lib_test extends \advanced_testcase {
         $this->assertFalse(mod_bigbluebuttonbn_core_calendar_is_event_visible($event));
     }
 
+    /**
+     * Check the bigbluebuttonbn_pre_enable_plugin_actions function.
+     *
+     * @covers ::bigbluebuttonbn_pre_enable_plugin_actions
+     * @dataProvider bigbluebuttonbn_pre_enable_plugin_actions_provider
+     * @param bool|null $initialstate
+     * @param bool $expected
+     * @param int $notificationcount
+     */
+    public function test_bigbluebuttonbn_pre_enable_plugin_actions(
+        ?bool $initialstate,
+        bool $expected,
+        int $notificationcount
+    ): void {
+        $this->resetAfterTest(true);
+        if ($initialstate) {
+            set_config('bigbluebuttonbn_server_url', \mod_bigbluebuttonbn\local\config::DEFAULT_SERVER_URL);
+        }
+        $this->assertEquals($expected, bigbluebuttonbn_pre_enable_plugin_actions());
+        $this->assertCount($notificationcount, \core\notification::fetch());
+    }
+
+    /**
+     * Check the bigbluebuttonbn_pre_enable_plugin_actions function.
+     *
+     * @covers ::bigbluebuttonbn_pre_enable_plugin_actions
+     * @dataProvider bigbluebuttonbn_pre_enable_plugin_actions_provider
+     * @param bool|null $initialstate
+     * @param bool $expected
+     * @param int $notificationcount
+     */
+    public function test_enable_plugin(
+        ?bool $initialstate,
+        bool $expected,
+        int $notificationcount
+    ): void {
+        $this->resetAfterTest(true);
+        if ($initialstate) {
+            set_config('bigbluebuttonbn_server_url', \mod_bigbluebuttonbn\local\config::DEFAULT_SERVER_URL);
+        }
+        $this->assertEquals($expected, \core\plugininfo\mod::enable_plugin('bigbluebuttonbn', 1));
+        $this->assertCount($notificationcount, \core\notification::fetch());
+    }
+
+    /**
+     * Data provider for bigbluebuttonbn_pre_enable_plugin_actions tests.
+     *
+     * @return array
+     */
+    public static function bigbluebuttonbn_pre_enable_plugin_actions_provider(): array {
+        return [
+            'Initially unset' => [
+                null,
+                false,
+                1,
+            ],
+            'Set to false' => [
+                false,
+                false,
+                1,
+            ],
+            'Initially set' => [
+                true,
+                true,
+                0,
+            ],
+        ];
+    }
 }
