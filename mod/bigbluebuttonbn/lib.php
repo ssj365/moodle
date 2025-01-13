@@ -113,6 +113,7 @@ function bigbluebuttonbn_add_instance($bigbluebuttonbn) {
     // Call any active subplugin so to signal a new creation.
     extension::add_instance($bigbluebuttonbn);
 
+    // Create new grade item.
     bigbluebuttonbn_grade_item_update($bigbluebuttonbn);
 
     return $bigbluebuttonbn->id;
@@ -205,6 +206,10 @@ function bigbluebuttonbn_delete_instance($id) {
     }
 
     $result = true;
+
+    // Delete grades.
+    $bigbluebuttonbn = $DB->get_record('bigbluebuttonbn', ['id' => $id]);
+    bigbluebuttonbn_grade_item_delete($bigbluebuttonbn);
 
     // Call any active subplugin so to signal deletion.
     extension::delete_instance($id);
@@ -352,6 +357,10 @@ function bigbluebuttonbn_reset_userdata(stdClass $data) {
         reset::reset_logs($data->courseid);
         unset($items['logs']);
         $status[] = reset::reset_getstatus('logs');
+    }
+    // Remove all grades from gradebook.
+    if (empty($data->reset_gradebook_grades)) {
+        bigbluebuttonbn_reset_gradebook($data->courseid, 'reset');
     }
     return $status;
 }
@@ -776,8 +785,7 @@ function bigbluebuttonbn_grade_item_update(stdclass $bigbluebuttonbn, $grades=NU
     if (!function_exists('grade_update')) { //workaround for buggy PHP versions
         require_once($CFG->libdir.'/gradelib.php');
     }
-
-    // Hook for extensions. We allow extensions to update the grade item. This takes precedence over the default behaviour.
+    // Hook for extensions. We allow extension to update the grade item. This takes precedence over the default behaviour.
     $extensions = extension::gradebook_addons_instances($bigbluebuttonbn);
     foreach ($extensions as $extension) {
         $grade_item = $extension->grade_item_update($grades);
@@ -786,17 +794,111 @@ function bigbluebuttonbn_grade_item_update(stdclass $bigbluebuttonbn, $grades=NU
             return $grade_item;
         }
     }
-
     // Since the grade item is not updated by any extension, we update it here.
     $params = array('itemname' => $bigbluebuttonbn->name);
-    if ($bigbluebuttonbn->grade > 0) {
-        $params['gradetype'] = GRADE_TYPE_VALUE;
-        $params['grademax']  = $bigbluebuttonbn->grade;
-        $params['grademin']  = 0;
-
-    } else {
+    if ($bigbluebuttonbn->grade == 0) {
         $params['gradetype'] = GRADE_TYPE_NONE;
+    } else if ($bigbluebuttonbn->grade > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax'] = $bigbluebuttonbn->grade;
+        $params['grademin'] = 0;
+    } else if ($bigbluebuttonbn->grade < 0) {
+        $params['gradetype'] = GRADE_TYPE_SCALE;
+        $params['scaleid'] = -$bigbluebuttonbn->grade;
+    }
+
+    if ($grades  === 'reset') {
+        $params['reset'] = true;
+        $grades = NULL;
     }
 
     return grade_update('mod/bigbluebuttonbn', $bigbluebuttonbn->course, 'mod', 'bigbluebuttonbn', $bigbluebuttonbn->id, 0, $grades, $params);
+}
+
+/**
+ * Update activity grades.
+ *
+ * @param object $bigbluebuttonbn
+ * @param int $userid specific user only, 0 means all
+ */
+function bigbluebuttonbn_update_grades($bigbluebuttonbn, $userid=0, $nullifnone=true) {
+    global $CFG, $DB;
+    require_once($CFG->libdir.'/gradelib.php');
+
+    if ($bigbluebuttonbn->grade == 0) {
+        bigbluebuttonbn_grade_item_update($bigbluebuttonbn);
+    } else if ($grades = bigbluebuttonbn_get_user_grades($bigbluebuttonbn, $userid)) {
+        bigbluebuttonbn_grade_item_update($bigbluebuttonbn, $grades);
+    } else if ($userid and $nullifnone) {
+        $grade = new stdClass();
+        $grade->userid   = $userid;
+        $grade->rawgrade = NULL;
+        bigbluebuttonbn_grade_item_update($bigbluebuttonbn, $grade);
+    } else {
+        bigbluebuttonbn_grade_item_update($bigbluebuttonbn);
+    }
+}
+
+/**
+ * Return grade for given user or all users.
+ *
+ * @param stdClass $bigbluebuttonbn record of bigbluebuttonbn
+ * @param int $userid optional user id, 0 means all users
+ * @return array array of grades, false if none
+ */
+function bigbluebuttonbn_get_user_grades($bigbluebuttonbn, $userid=0) {
+    global $CFG, $DB;
+    $userids = [];
+    if (!empty($userid)) {
+        $userids[] = $userid;
+    }
+    // TO DO: Determine the best way to retreive grades. BBB actvity DB tables or Moodle gradebook?
+    $gradinginfo = grade_get_grades(
+        $bigbluebuttonbn->course,
+        'mod',
+        'bigbluebuttonbn',
+        $bigbluebuttonbn->id,
+        $userids
+    );
+    $grades = false;
+    if (empty($grades)) {
+        return false;
+    }
+    return $grades;
+}
+
+/**
+ * Removes all grades from gradebook
+ *
+ * @global object
+ * @global object
+ * @param int $courseid
+ * @param string $type optional type
+ */
+function bigbluebuttonbn_reset_gradebook($courseid, $type='') {
+    global $CFG, $DB;
+
+    $sql = "SELECT b.*, cm.idnumber as cmidnumber, b.course as courseid
+              FROM {bigbluebuttonbn} b, {course_modules} cm, {modules} m
+             WHERE m.name='bigbluebuttonbn' AND m.id=cm.module AND cm.instance=b.id AND b.course=?";
+
+    if ($bigbluebuttonbns = $DB->get_records_sql($sql, array($courseid))) {
+        foreach ($bigbluebuttonbns as $bigbluebuttonbn) {
+            bigbluebuttonbn_grade_item_update($bigbluebuttonbn, 'reset');
+        }
+    }
+}
+
+/**
+ * Delete grade item for given activity
+ *
+ * @category grade
+ * @param object $bigbluebuttonbn object
+ * @return object bigbluebuttonbn
+ */
+function bigbluebuttonbn_grade_item_delete($bigbluebuttonbn) {
+    global $CFG;
+    require_once($CFG->libdir.'/gradelib.php');
+
+    return grade_update('mod/bigbluebuttonbn', $bigbluebuttonbn->course, 'mod', 'bigbluebuttonbn', $bigbluebuttonbn->id, 0, null, array('deleted' => 1));
 }

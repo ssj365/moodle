@@ -58,7 +58,7 @@ final class lib_test extends \advanced_testcase {
         $this->resetAfterTest();
         $this->assertTrue(bigbluebuttonbn_supports(FEATURE_IDNUMBER));
         $this->assertTrue(bigbluebuttonbn_supports(FEATURE_MOD_INTRO));
-        $this->assertFalse(bigbluebuttonbn_supports(FEATURE_GRADE_HAS_GRADE));
+        $this->assertTrue(bigbluebuttonbn_supports(FEATURE_GRADE_HAS_GRADE));
     }
 
     /**
@@ -570,7 +570,7 @@ final class lib_test extends \advanced_testcase {
         $result = bigbluebuttonbn_check_updates_since($bbactivitycm, 0);
         $this->assertEquals(
             '{"configuration":{"updated":false},"contentfiles":{"updated":false},"introfiles":' .
-            '{"updated":false},"completion":{"updated":false}}',
+            '{"updated":false},"completion":{"updated":false},"gradeitems":{"updated":false},"outcomes":{"updated":false}}',
             json_encode($result)
         );
     }
