@@ -132,7 +132,7 @@ $string['config_guestaccess_enabled'] = 'External guest access';
 $string['config_guestaccess_enabled_description'] = 'Allow users without an account on your site to access the room.';
 
 $string['config_general'] = 'General settings';
-$string['config_general_description'] = 'To set up BigBlueButton, you can either use your own BigBlueButton server and credentials, or obtain credentials through the <a href="https://registration-portal.blindsidenetworks.com/" target="_blank">Blindside Networks Registration Portal (opens in a new window)</a>.';
+$string['config_general_registration'] = 'To set up BigBlueButton, you can either use your own BigBlueButton server and credentials, or obtain credentials through the <a href="https://registration-portal.blindsidenetworks.com/" target="_blank">Blindside Networks Registration Portal (opens in a new window)</a>.';
 $string['config_profile_picture_enabled'] = 'Show profile pictures';
 $string['config_profile_picture_enabled_description'] = 'Should profile pictures of participants be shown in BigBlueButton sessions?';
 $string['config_server_url'] = 'BigBlueButton server URL';
@@ -674,3 +674,6 @@ $string['view_warning_default_server'] = 'This site is using a <a href="https://
 // Deprecated since Moodle 4.5.
 $string['view_mobile_message_reload_page_creation_time_meeting'] = 'You exceeded 45 seconds on this page. Please refresh the page to join the session.';
 $string['view_mobile_message_groups_not_supported'] = 'This instance is enabled to work with groups but the mobile app doesn\'t yet support it. Please use the web version.';
+
+// Deprecated since Moodle 5.0.
+$string['config_general_description'] = 'To set up BigBlueButton, you can either use your own BigBlueButton server and credentials, or obtain credentials through the <a href="https://registration-portal.blindsidenetworks.com/" target="_blank">Blindside Networks Registration Portal (opens in a new window)</a>.';
