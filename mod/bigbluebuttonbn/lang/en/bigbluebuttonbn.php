@@ -133,6 +133,7 @@ $string['config_guestaccess_enabled_description'] = 'Allow users without an acco
 
 $string['config_general'] = 'General settings';
 $string['config_general_description'] = 'To set up BigBlueButton, you can either use your own BigBlueButton server and credentials, or obtain credentials through the <a href="https://registration-portal.blindsidenetworks.com/" target="_blank">Blindside Networks Registration Portal (opens in a new window)</a>.';
+$string['config_general_registration'] = 'To set up BigBlueButton, you can either use your own BigBlueButton server and credentials, or obtain credentials through the <a href="https://registration-portal.blindsidenetworks.com/" target="_blank">Blindside Networks Registration Portal (opens in a new window)</a>.';
 $string['config_profile_picture_enabled'] = 'Show profile pictures';
 $string['config_profile_picture_enabled_description'] = 'Should profile pictures of participants be shown in BigBlueButton sessions?';
 $string['config_server_url'] = 'BigBlueButton server URL';
