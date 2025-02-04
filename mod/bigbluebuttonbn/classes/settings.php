@@ -163,7 +163,7 @@ class settings {
             // Configuration for BigBlueButton.
             $item = new admin_setting_heading('bigbluebuttonbn_config_general',
                 '',
-                get_string('config_general_description', 'bigbluebuttonbn')
+                get_string('config_general_registration', 'bigbluebuttonbn')
             );
             $settingsgeneral->add($item);
 
