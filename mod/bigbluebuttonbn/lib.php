@@ -71,7 +71,7 @@ function bigbluebuttonbn_supports($feature) {
         FEATURE_BACKUP_MOODLE2 => true,
         FEATURE_COMPLETION_TRACKS_VIEWS => true,
         FEATURE_COMPLETION_HAS_RULES => true,
-        FEATURE_GRADE_HAS_GRADE => false,
+        FEATURE_GRADE_HAS_GRADE => true,
         FEATURE_GRADE_OUTCOMES => false,
         FEATURE_SHOW_DESCRIPTION => true,
         FEATURE_MOD_PURPOSE => MOD_PURPOSE_OTHER
@@ -107,6 +107,10 @@ function bigbluebuttonbn_add_instance($bigbluebuttonbn) {
     logger::log_instance_created($bigbluebuttonbn);
     // Complete the process.
     mod_helper::process_post_save($bigbluebuttonbn);
+
+    // Create new grade item.
+    bigbluebuttonbn_grade_item_update($bigbluebuttonbn);
+
     return $bigbluebuttonbn->id;
 }
 
@@ -133,6 +137,8 @@ function bigbluebuttonbn_update_instance($bigbluebuttonbn) {
     }
     // Update a record.
     $DB->update_record('bigbluebuttonbn', $bigbluebuttonbn);
+
+    bigbluebuttonbn_grade_item_update($bigbluebuttonbn);
 
     // Get the meetingid column in the bigbluebuttonbn table.
     $bigbluebuttonbn->meetingid = (string) $DB->get_field('bigbluebuttonbn', 'meetingid', ['id' => $bigbluebuttonbn->id]);
@@ -193,6 +199,10 @@ function bigbluebuttonbn_delete_instance($id) {
     }
 
     $result = true;
+
+    // Delete grades.
+    $bigbluebuttonbn = $DB->get_record('bigbluebuttonbn', ['id' => $id]);
+    bigbluebuttonbn_grade_item_delete($bigbluebuttonbn);
 
     // Delete the instance.
     if (!$DB->delete_records('bigbluebuttonbn', ['id' => $id])) {
@@ -337,6 +347,10 @@ function bigbluebuttonbn_reset_userdata(stdClass $data) {
         reset::reset_logs($data->courseid);
         unset($items['logs']);
         $status[] = reset::reset_getstatus('logs');
+    }
+    // Remove all grades from gradebook.
+    if (empty($data->reset_gradebook_grades)) {
+        bigbluebuttonbn_reset_gradebook($data->courseid, 'reset');
     }
     return $status;
 }
@@ -767,4 +781,70 @@ function bigbluebuttonbn_course_backend_generator_create_activity(tool_generator
         $backend->dot($i, $number);
     }
     $backend->end_log();
+}
+
+/**
+ * Update/create grade item for given BigBlueButtonBN activity
+ *
+ * @category grade
+ * @param stdClass $instance A BBB instance object with extra cmidnumber
+ * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return object grade_item
+ */
+function bigbluebuttonbn_grade_item_update(stdclass $bigbluebuttonbn, $grades=NULL) {
+    $params = array('itemname' => $bigbluebuttonbn->name);
+    if ($bigbluebuttonbn->grade == 0) {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+    } else if ($bigbluebuttonbn->grade > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax'] = $bigbluebuttonbn->grade;
+        $params['grademin'] = 0;
+    } else if ($bigbluebuttonbn->grade < 0) {
+        $params['gradetype'] = GRADE_TYPE_SCALE;
+        $params['scaleid'] = -$bigbluebuttonbn->grade;
+    }
+
+    if ($grades  === 'reset') {
+        $params['reset'] = true;
+        $grades = NULL;
+    }
+
+    $result = grade_update('mod/bigbluebuttonbn', $bigbluebuttonbn->course, 'mod', 'bigbluebuttonbn', $bigbluebuttonbn->id, 0, $grades, $params);
+    return $result;
+}
+
+/**
+ * Removes all grades from gradebook
+ *
+ * @global object
+ * @global object
+ * @param int $courseid
+ * @param string $type optional type
+ */
+function bigbluebuttonbn_reset_gradebook($courseid, $type='') {
+    global $CFG, $DB;
+
+    $sql = "SELECT b.*, cm.idnumber as cmidnumber, b.course as courseid
+              FROM {bigbluebuttonbn} b, {course_modules} cm, {modules} m
+             WHERE m.name='bigbluebuttonbn' AND m.id=cm.module AND cm.instance=b.id AND b.course=?";
+
+    if ($bigbluebuttonbns = $DB->get_records_sql($sql, array($courseid))) {
+        foreach ($bigbluebuttonbns as $bigbluebuttonbn) {
+            bigbluebuttonbn_grade_item_update($bigbluebuttonbn, 'reset');
+        }
+    }
+}
+
+/**
+ * Delete grade item for given activity
+ *
+ * @category grade
+ * @param object $bigbluebuttonbn object
+ * @return object bigbluebuttonbn
+ */
+function bigbluebuttonbn_grade_item_delete($bigbluebuttonbn) {
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    debugging("MX: Call stack after grade_update: " . print_r($backtrace, true));
+
+    return grade_update('mod/bigbluebuttonbn', $bigbluebuttonbn->course, 'mod', 'bigbluebuttonbn', $bigbluebuttonbn->id, 0, null, array('deleted' => 1));
 }
