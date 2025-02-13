@@ -429,6 +429,8 @@ EOF;
 
         if (array_key_exists('other', $options)) {
             $params['other'] = $options['other'];
+        } else {
+            $params['other'] = 0; // Should not pass null as this triggers errors.
         }
 
         $event = call_user_func_array("\\mod_bigbluebuttonbn\\event\\{$type}::create", [$params]);
