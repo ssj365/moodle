@@ -100,8 +100,7 @@ class extension {
         $classbasename = end($classnamecomponents);
         $allsubs = core_plugin_manager::instance()->get_plugins_of_type(self::BBB_EXTENSION_PLUGIN_NAME);
         $extensionclasses = [];
-        $names = core_component::get_plugin_list(self::BBB_EXTENSION_PLUGIN_NAME);
-        $sortedlist = self::get_sorted_plugins_list($names); // Make sure to use the most updated list.
+        $sortedlist = self::get_sorted_plugins_list();
         $sortedlist = array_flip($sortedlist);
         foreach ($allsubs as $sub) {
             if (!$sub->is_enabled()) {
@@ -128,10 +127,13 @@ class extension {
 
     /**
      * Return plugin list sorted according to order from admin extension manager.
-     * @param array $names Array of plugin names
      * @return array The sorted list of plugins
      */
-    public static function get_sorted_plugins_list(array $names): array {
+    public static function get_sorted_plugins_list(): array {
+        // Get all subplugins of bigbluebuttonbn.
+        $extensionnames = \core_component::get_plugin_list(self::BBB_EXTENSION_PLUGIN_NAME);
+
+        // Sort the plugins according to the sortorder.
         $result = [];
         foreach ($names as $name => $path) {
             $idx = get_config(self::BBB_EXTENSION_PLUGIN_NAME . '_' . $name, 'sortorder');
