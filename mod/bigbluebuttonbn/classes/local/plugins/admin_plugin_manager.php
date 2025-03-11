@@ -190,8 +190,7 @@ class admin_plugin_manager {
      * @return array The list of plugins
      */
     public function get_sorted_plugins_list(): array {
-        $names = core_component::get_plugin_list(extension::BBB_EXTENSION_PLUGIN_NAME);
-        return extension::get_sorted_plugins_list($names);
+        return extension::get_sorted_plugins_list();
     }
 
     /**
