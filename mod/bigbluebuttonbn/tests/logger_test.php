@@ -69,4 +69,16 @@ final class logger_test extends \advanced_testcase {
         logger::log_recording_played_event($instance, 1);
         $this->assertTrue($DB->record_exists('bigbluebuttonbn_logs', ['bigbluebuttonbnid' => $instance->get_instance_id()]));
     }
+
+    /**
+     * Test log_meeting_left_event method
+     */
+    public function test_log_meeting_left_event(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        list($bbactivitycontext, $bbactivitycm, $bbactivity) = $this->create_instance();
+        $instance = instance::get_from_instanceid($bbactivity->id);
+
+    } 
 }
