@@ -69,4 +69,29 @@ final class logger_test extends \advanced_testcase {
         logger::log_recording_played_event($instance, 1);
         $this->assertTrue($DB->record_exists('bigbluebuttonbn_logs', ['bigbluebuttonbnid' => $instance->get_instance_id()]));
     }
+
+    /**
+     * Test log_meeting_left_event method
+     */
+    public function test_log_meeting_left_event(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        list($bbactivitycontext, $bbactivitycm, $bbactivity) = $this->create_instance();
+        $instance = instance::get_from_instanceid($bbactivity->id);
+
+        // Trigger and capture the meeting left event.
+        $sink = $this->redirectEvents();
+        logger::log_meeting_left_event($instance);
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = reset($events);
+        $sink->close();
+
+        // Check the event has the correct data.
+        $this->assertInstanceOf('\mod_bigbluebuttonbn\event\meeting_left', $event);
+        $this->assertEquals($bbactivitycontext, $event->get_context());
+        $this->assertEquals($instance->get_instance_id(), $event->objectid);
+        $this->assertEquals(0, $event->other);
+    }
 }

@@ -417,6 +417,7 @@ EOF;
         $params = [
             'context' => $instance->get_context(),
             'objectid' => $instance->get_instance_id(),
+            'other' => 0, // Should not pass null as this triggers errors.
         ];
 
         if (array_key_exists('timecreated', $options)) {
