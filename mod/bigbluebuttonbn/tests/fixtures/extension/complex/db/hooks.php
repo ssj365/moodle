@@ -22,7 +22,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
-return [
+defined('MOODLE_INTERNAL') || die();
+
+$callbacks = [
     [
         'hook' => \mod_bigbluebuttonbn\hook\extend_settings_navigation_override::class,
         'callback' => \bbbext_complex\hook\extend_settings_navigation_override::class . '::override_settings_navigation'

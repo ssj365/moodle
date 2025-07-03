@@ -44,7 +44,7 @@ class extension {
      * If true, all subplugins implementing the action_url_addons will be executed.
      * If false, only the first one will be executed.
      */
-    const BBB_EXTNSION_PROCESS_ALL = true;
+    const BBB_EXTENSION_PROCESS_ALL = true;
     /**
      * If true, only the first subplugin implementing the action_url_addons will be executed.
      * If false, all subplugins will be executed.
@@ -296,7 +296,7 @@ class extension {
      * @param bool $processall If true, process all extensions implementing the event hook, otherwise only the first one.
      * @return bool True if at least one override was found and executed, false otherwise.
      */
-    public static function execute_hook_callbacks($hookmanager, $event, $processall = self::BBB_EXTNSION_PROCESS_ALL): bool {
+    public static function execute_hook_callbacks($hookmanager, $event, $processall = self::BBB_EXTENSION_PROCESS_ALL): bool {
         // Get all callbacks for the specific hook.
         $allcallbacks = $hookmanager->get_callbacks_for_hook(get_class($event));
         // Get the sorted and flipped list of enabled subplugins.
