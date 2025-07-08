@@ -249,7 +249,7 @@ XPATH
      * @BeforeScenario @with_bbbext_simple
      */
     public function install_simple_subplugin() {
-        $this->install_bbbext_subplugin('simple');
+        $this->install_bbbext_subplugin('simple', true);
     }
 
     /**
@@ -258,7 +258,8 @@ XPATH
      * @BeforeScenario @with_bbbext_complex
      */
     public function install_complex_subplugin() {
-        $this->install_bbbext_subplugin('complex');
+        // Disable by default for testing purposes.
+        $this->install_bbbext_subplugin('complex', false);
     }
 
     /**
@@ -287,8 +288,9 @@ XPATH
      * randomly lost due to the component cache being cleared. So we have to install the plugin before
      * any interaction with the site.
      * @param string $subplugin The subplugin name
+     * @param bool $enabled Enable or disable the subplugin
      */
-    public function install_bbbext_subplugin(string $subplugin): void {
+    public function install_bbbext_subplugin(string $subplugin, bool $enabled): void {
         $this->setup_fake_plugin($subplugin);
         $this->installedsubplugins[] = $subplugin;
 
@@ -298,7 +300,7 @@ XPATH
         $init = $mockedcomponent->getMethod('init');
         $init->invoke(null);
         // I enable the plugin.
-        $manager = core_plugin_manager::resolve_plugininfo_class(\mod_bigbluebuttonbn\extension::BBB_EXTENSION_PLUGIN_NAME);
-        $manager::enable_plugin($subplugin, true);
+        $bbbsubplugin = \mod_bigbluebuttonbn\extension::BBB_EXTENSION_PLUGIN_NAME . "_" . $subplugin;
+        set_config('disabled', !$enabled, $bbbsubplugin);
     }
 }
